@@ -102,7 +102,7 @@ public plugin_init()
 public plugin_cfg()
 {
 	//g_sqlTuple = SQL_MakeStdTuple()
-	g_sqlTuple = Handle:SQL_MakeDbTuple ("timmw.co.uk", "timmw_cs", "cs1010", "timmw_cs")
+	g_sqlTuple = Handle:SQL_MakeDbTuple  ("domain.com", "user", "pwd", "db")
 }
 
 public check_account(id)
