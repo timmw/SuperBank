@@ -16,6 +16,8 @@ ready for use in the real world yet!<b>
     <li>bank_offrounds - how many rounds before players can withdraw money (default 3)</li>
     <li>bank_withdrawlimit - how much a player can withdraw in a round</li>
 
+</ul>
+
 <h2>Commands</h2>
 
 <ul>
