@@ -23,7 +23,7 @@
  * 		UNIQUE(`steam_id`)
  *	)
  * 	
- * 	- Lottery Draws Table
+ * 	- Lottery Draws Table (not currently in use)
  * 	
  * 	CREATE TABLE IF NOT EXISTS `bank_lottery_draws`
  * 	(
@@ -32,7 +32,7 @@
  * 		PRIMARY KEY(`drawId`)
  * 	)
  * 
- *	- Lottery Entries Table
+ *	- Lottery Entries Table (not currently in use)
  * 
  * 	CREATE TABLE IF NOT EXISTS `bank_lottery_entries`
  * 	(
@@ -45,9 +45,10 @@
  * 
  * 	NOTES -------------------------------------------------------
  * 
- * 	User name is updated on client connect, every time a user checks/alters their balance and when they disconnect.
+ * 	User name is updated on client connect, every time a user checks/alters
+ *     their balance and when they disconnect.
  * 
- *  Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
+ *     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
  * 
  * 	CMD List ----------------------------------------------------
  * 
@@ -102,7 +103,7 @@ public plugin_init()
 public plugin_cfg()
 {
 	//g_sqlTuple = SQL_MakeStdTuple()
-	g_sqlTuple = Handle:SQL_MakeDbTuple ("timmw.co.uk", "timmw_cs", "cs1010", "timmw_cs")
+	g_sqlTuple = Handle:SQL_MakeDbTuple ("domain.com", "user", "pwd", "db")
 }
 
 public check_account(id)
