@@ -13,7 +13,9 @@ ready for use in the real world yet!<b>
 
 <ul>
 
-    <li>/openaccount</li>
+    <li>/openaccount
+<p>Opens a new account, if the player has already opened an account they will be shown a message informing them they already have an account </p>
+</li>
     <li>/balance</li>
     <li>/moneywithdrawn</li>
     <li>/maxdep</li>
