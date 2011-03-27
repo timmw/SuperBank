@@ -16,15 +16,15 @@ ready for use in the real world yet!**
 
 ## Commands
 
-    */openaccount<p>Opens a new account, if the player has already opened an account they will be shown a message informing them they already have an account.</p>
-    */balance<p>Displays the player's balance in player chat to that player.</p>
-    */moneywithdrawn<p>Shows the player how much they have withdrawn so far this round</p>
-    */maxdep<p>Deposits all of the player's cash into their account.</p>
-    */maxwit<p>Withdraws the maximum amount of cash a player can hold until either they have $16k, they reach their limit for that round or they have no money left in the account.<p>
-    *maxdep (console)<p>Same as /maxdep, intended for binding to a key.</p>
-    *maxwit (console)<p>Same as /maxwit, intended for binding to a key.</p>
-    */withdraw &lt;amout&gt;<p>Withdraws &lt;amount&gt; from the player's account, works in a similar way to /maxwit regarding limits such as balance, money space and money per round limit.</p>
-    */deposit &lt;amount&gt;<p>Deposit &lt;amount&gt;.</p>
+    */openaccount - Opens a new account, if the player has already opened an account they will be shown a message informing them they already have an account.
+    */balance - Displays the player's balance in player chat to that player.
+    */moneywithdrawn - Shows the player how much they have withdrawn so far this round
+    */maxdep - Deposits all of the player's cash into their account.
+    */maxwit - Withdraws the maximum amount of cash a player can hold until either they have $16k, they reach their limit for that round or they have no money left in the account. - 
+    *maxdep (console) - Same as /maxdep, intended for binding to a key.
+    *maxwit (console) - Same as /maxwit, intended for binding to a key.
+    */withdraw &lt;amout&gt; - Withdraws &lt;amount&gt; from the player's account, works in a similar way to /maxwit regarding limits such as balance, money space and money per round limit.
+    */deposit &lt;amount&gt; - Deposit &lt;amount&gt;.
 
 ## Installation
 
