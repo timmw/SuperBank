@@ -103,7 +103,11 @@ public plugin_init()
 public plugin_cfg()
 {
 	//g_sqlTuple = SQL_MakeStdTuple()
+<<<<<<< HEAD
 	g_sqlTuple = Handle:SQL_MakeDbTuple ("domain.com", "user", "pwd", "db")
+=======
+	g_sqlTuple = Handle:SQL_MakeDbTuple  ("domain.com", "user", "pwd", "db")
+>>>>>>> caa9eb6dc789cd8b39be17c49159e027c3241dfc
 }
 
 public check_account(id)
