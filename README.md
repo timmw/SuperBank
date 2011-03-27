@@ -46,3 +46,14 @@ ready for use in the real world yet!<b>
     <li>Restart your server</li>
 
 </ol>
+
+<h2>Future improvements</h2>
+
+<ul>
+
+    <li>menu</li>
+    <li>rich list to see richest players</li>
+    <li>lottery</li>
+    <li>donations</li>
+
+</ul>
