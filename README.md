@@ -38,7 +38,7 @@ ready for use in the real world yet!<b>
 
 <ol>
 
-    <li>Create a mysql database and assign a user to it with all privaledges</li>
+    <li>Create a mysql database and assign a user to it with all privileges</li>
     <li>Upload the files to the appropriate places</li>
     <li>Edit the superbank.cfg file</li>
     <li>Make sure you fill in sql.cfg (included with amx) with your database details</li>
