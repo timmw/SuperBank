@@ -76,7 +76,7 @@ public plugin_init()
 	register_plugin(PLUGIN, VERSION, AUTHOR)
 	
 	register_clcmd("say /openaccount",      "bank_create",      ADMIN_KICK, "Creates a bank account.")
-	//register_clcmd("say /bankhelp",       "bank_help",		ADMIN_KICK, "Displays the bank help motd.")
+	//register_clcmd("say /bankhelp",       "bank_help",        ADMIN_KICK, "Displays the bank help motd.")
 	//register_clcmd("say /richlist",       "bank_richlist",	-1, "Displays the rich list.")
 	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, "Enters you into the lottery for this week.")
 	
