@@ -32,6 +32,7 @@ ready for use in the real world yet!<b>
     <li>Create a mysql database and assign a user to it with all privaledges</li>
     <li>Upload the files to the appropriate places</li>
     <li>Edit the superbank.cfg file</li>
+    <li>Make sure you fill in sql.cfg (included with amx) with your database details</li>
     <li>Add superbank.amxx into plugins.ini</li>
     <li>Restart your server</li>
 

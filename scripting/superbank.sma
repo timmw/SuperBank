@@ -95,11 +95,6 @@ public plugin_init()
 	//register_cvar("bank_richlistpage", 		"http://prototypeclan.com")
 	register_cvar("bank_offrounds", 		"3")
 	register_cvar("bank_withdrawlimit", 	"10000")
-    
-    register_cvar("bank_sql_host",      "")
-    register_cvar("bank_sql_username",  "")
-    register_cvar("bank_sql_password",  "")
-    register_cvar("bank_sql_database",  "")
 	
 	register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
 	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
@@ -107,8 +102,7 @@ public plugin_init()
 
 public plugin_cfg()
 {
-	//g_sqlTuple = SQL_MakeStdTuple()
-	g_sqlTuple = Handle:SQL_MakeDbTuple ("domain.com", "user", "pwd", "db")
+	g_sqlTuple = SQL_MakeStdTuple()
 }
 
 public check_account(id)
