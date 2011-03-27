@@ -9,6 +9,13 @@ database.
 <b>Please note that this plugin hasn't been officially released and therefore isn't
 ready for use in the real world yet!<b>
 
+<h2>Cvars</h2>
+
+<ul>
+
+    <li>bank_offrounds - how many rounds before players can withdraw money (default 3)</li>
+    <li>bank_withdrawlimit - how much a player can withdraw in a round</li>
+
 <h2>Commands</h2>
 
 <ul>
