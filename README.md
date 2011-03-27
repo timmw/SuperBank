@@ -20,8 +20,8 @@ ready for use in the real world yet!<b>
     <li>/maxwit<p>Withdraws the maximum amount of cash a player can hold until either they have $16k, they reach their limit for that round or they have no money left in the account.<p></li>
     <li>maxdep (console)<p>Same as /maxdep, intended for binding to a key.</p></li>
     <li>maxwit (console)<p>Same as /maxwit, intended for binding to a key.</p></li>
-    <li>/withdraw &lt;amout&gt;<p>Withdraws <amount> from the player's account, works in a similar way to /maxwit regarding limits such as balance, money space and money per round limit.</p></li>
-    <li>/deposit &lt;amount&gt;<p>Deposit <amount>.</p></li>
+    <li>/withdraw &lt;amout&gt;<p>Withdraws &lt;amount&gt; from the player's account, works in a similar way to /maxwit regarding limits such as balance, money space and money per round limit.</p></li>
+    <li>/deposit &lt;amount&gt;<p>Deposit &lt;amount&gt;.</p></li>
 
 </ul>
 
