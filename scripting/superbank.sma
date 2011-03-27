@@ -75,21 +75,21 @@ public plugin_init()
 {
 	register_plugin(PLUGIN, VERSION, AUTHOR)
 	
-	register_clcmd("say /openaccount",		"bank_create",		ADMIN_KICK, "Creates a bank account.")
-	//register_clcmd("say /bankhelp",		"bank_help",		ADMIN_KICK, "Displays the bank help motd.")
-	//register_clcmd("say /richlist",		"bank_richlist",	-1, "Displays the rich list.")
-	//register_clcmd("say /enterlottery",	"enter_lottery",	-1, "Enters you into the lottery for this week.")
+	register_clcmd("say /openaccount",      "bank_create",      ADMIN_KICK, "Creates a bank account.")
+	//register_clcmd("say /bankhelp",       "bank_help",		ADMIN_KICK, "Displays the bank help motd.")
+	//register_clcmd("say /richlist",       "bank_richlist",	-1, "Displays the rich list.")
+	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, "Enters you into the lottery for this week.")
 	
-	register_clcmd("say /balance",			"bank_balance",		ADMIN_KICK, "Displays your balance.")
-	register_clcmd("say /moneywithdrawn",	"money_withdrawn",	ADMIN_KICK, "Shows how much you've withdrawn this round.")
-	register_clcmd("say /maxdep",			"deposit_maximum",	ADMIN_KICK, "Deposits all of your cash.")
-	register_clcmd("say /maxwit",			"withdraw_maximum",	ADMIN_KICK, "Withdraw cash until limit reached.")
+	register_clcmd("say /balance",          "bank_balance",	 ADMIN_KICK, "Displays your balance.")
+	register_clcmd("say /moneywithdrawn",   "money_withdrawn",  ADMIN_KICK, "Shows how much you've withdrawn this round.")
+	register_clcmd("say /maxdep",           "deposit_maximum",  ADMIN_KICK, "Deposits all of your cash.")
+	register_clcmd("say /maxwit",           "withdraw_maximum", ADMIN_KICK, "Withdraw cash until limit reached.")
 	
-	register_clcmd("maxdep",				"deposit_maximum",	ADMIN_KICK, "Deposits all of your cash.")
-	register_clcmd("maxwit",				"withdraw_maximum",	ADMIN_KICK, "Withdraw cash until limit reached.")
+	register_clcmd("maxdep",                "deposit_maximum",  ADMIN_KICK, "Deposits all of your cash.")
+	register_clcmd("maxwit",				"withdraw_maximum", ADMIN_KICK, "Withdraw cash until limit reached.")
 	
-	register_clcmd("say",					"say_handler",		ADMIN_KICK)
-	register_clcmd("say_team",				"say_handler",		ADMIN_KICK)
+	register_clcmd("say",                   "say_handler",	  ADMIN_KICK)
+	register_clcmd("say_team",			  "say_handler",	  ADMIN_KICK)
 	
 	//register_cvar("bank_helppage", 			"http://timmw.co.uk")
 	//register_cvar("bank_richlistpage", 		"http://prototypeclan.com")
@@ -103,11 +103,7 @@ public plugin_init()
 public plugin_cfg()
 {
 	//g_sqlTuple = SQL_MakeStdTuple()
-<<<<<<< HEAD
 	g_sqlTuple = Handle:SQL_MakeDbTuple ("domain.com", "user", "pwd", "db")
-=======
-	g_sqlTuple = Handle:SQL_MakeDbTuple  ("domain.com", "user", "pwd", "db")
->>>>>>> caa9eb6dc789cd8b39be17c49159e027c3241dfc
 }
 
 public check_account(id)
