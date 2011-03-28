@@ -8,63 +8,63 @@
 #define VERSION	"0.1.1"
 
 /**	--- TABLE SQL --------------------------------------------------
- * 	
- * 	- Users Table
- * 
- * 	CREATE TABLE IF NOT EXISTS `bank_users`
- * 	(
- * 		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
- *		`username` VARCHAR(32) NOT NULL, 
- *		`steam_id` VARCHAR(32) NOT NULL,
- *		`balance` BIGINT UNSIGNED NOT NULL DEFAULT 0, 
- *		`date_opened` DATETIME NOT NULL, 
- * 		`access` TINYINT(1) NOT NULL DEFAULT 0,
- *		PRIMARY KEY(`id`),
- * 		UNIQUE(`steam_id`)
- *	)
- * 	
- * 	- Lottery Draws Table (not currently in use)
- * 	
- * 	CREATE TABLE IF NOT EXISTS `bank_lottery_draws`
- * 	(
- * 		`drawId` INT(5) UNSIGNED AUTO_INCREMENT NOT NULL,
- * 		`drawDate` DATETIME NOT NULL,
- * 		PRIMARY KEY(`drawId`)
- * 	)
- * 
- *	- Lottery Entries Table (not currently in use)
- * 
- * 	CREATE TABLE IF NOT EXISTS `bank_lottery_entries`
- * 	(
- * 		`userId` INT(10) UNSIGNED NOT NULL,
- *		`drawId` INT(5) UNSIGNED NOT NULL, 
- * 		FOREIGN KEY(`userId`) REFERENCES `bank_users`(`userId`),
- * 		FOREIGN KEY(`drawId`) REFERENCES `bank_lottery_draws`(`drawId`),
- * 		PRIMARY KEY(`drawId`, `userId`)
- * 	)
- * 
- * 	NOTES -------------------------------------------------------
- * 
- * 	User name is updated on client connect, every time a user checks/alters
- *     their balance and when they disconnect.
- * 
- *     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
- * 
- * 	CMD List ----------------------------------------------------
- * 
- * 	say /bankhelp
- * 	say /openaccount
- * 	say /balance
- * 	say /moneywithdrawn
- * 	say /deposit <amount>
- * 	say /withdraw <amount>
- * 	say /maxdep
- * 	say /maxwit
- * 	maxdep
- * 	maxwit
- * 	
- *	//say /richlist
- */
+* 	
+* 	- Users Table
+* 
+* 	CREATE TABLE IF NOT EXISTS `bank_users`
+* 	(
+* 		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+*		`username` VARCHAR(32) NOT NULL, 
+*		`steam_id` VARCHAR(32) NOT NULL,
+*		`balance` BIGINT UNSIGNED NOT NULL DEFAULT 0, 
+*		`date_opened` DATETIME NOT NULL, 
+* 		`access` TINYINT(1) NOT NULL DEFAULT 0,
+*		PRIMARY KEY(`id`),
+* 		UNIQUE(`steam_id`)
+*	)
+* 	
+* 	- Lottery Draws Table (not currently in use)
+* 	
+* 	CREATE TABLE IF NOT EXISTS `bank_lottery_draws`
+* 	(
+* 		`drawId` INT(5) UNSIGNED AUTO_INCREMENT NOT NULL,
+* 		`drawDate` DATETIME NOT NULL,
+* 		PRIMARY KEY(`drawId`)
+* 	)
+* 
+*	- Lottery Entries Table (not currently in use)
+* 
+* 	CREATE TABLE IF NOT EXISTS `bank_lottery_entries`
+* 	(
+* 		`userId` INT(10) UNSIGNED NOT NULL,
+*		`drawId` INT(5) UNSIGNED NOT NULL, 
+* 		FOREIGN KEY(`userId`) REFERENCES `bank_users`(`userId`),
+* 		FOREIGN KEY(`drawId`) REFERENCES `bank_lottery_draws`(`drawId`),
+* 		PRIMARY KEY(`drawId`, `userId`)
+* 	)
+* 
+* 	NOTES -------------------------------------------------------
+* 
+* 	User name is updated on client connect, every time a user checks/alters
+*     their balance and when they disconnect.
+* 
+*     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
+* 
+* 	CMD List ----------------------------------------------------
+* 
+* 	say /bankhelp
+* 	say /openaccount
+* 	say /balance
+* 	say /moneywithdrawn
+* 	say /deposit <amount>
+* 	say /withdraw <amount>
+* 	say /maxdep
+* 	say /maxwit
+* 	maxdep
+* 	maxwit
+* 	
+*	//say /richlist
+*/
 
 new Handle:g_sqlTuple
 new g_iRound = 0
@@ -75,68 +75,68 @@ public plugin_init()
 {
 	register_plugin(PLUGIN, VERSION, AUTHOR)
 	
-    // Client commands
-    
+	// Client commands
+	
 	register_clcmd("say /openaccount",          "bank_create",      -1, 
-        "Creates a bank account.")
-    register_clcmd("say_team /openaccount",     "bank_create",      -1, 
-        "Creates a bank account.")
+	"Creates a bank account.")
+	register_clcmd("say_team /openaccount",     "bank_create",      -1, 
+	"Creates a bank account.")
 	
 	register_clcmd("say /balance",              "bank_balance",     -1, 
-        "Displays your balance.")
-    register_clcmd("say_team /balance",         "bank_balance",     -1, 
-        "Displays your balance.")
-    
+	"Displays your balance.")
+	register_clcmd("say_team /balance",         "bank_balance",     -1, 
+	"Displays your balance.")
+	
 	register_clcmd("say /moneywithdrawn",       "money_withdrawn",  -1, 
-        "Shows how much you've withdrawn this round.")
-    register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, 
-        "Shows how much you've withdrawn this round.")
-    
+	"Shows how much you've withdrawn this round.")
+	register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, 
+	"Shows how much you've withdrawn this round.")
+	
 	register_clcmd("say /maxdep",               "deposit_maximum",  -1, 
-        "Deposits all of your cash.")
-    register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, 
-        "Deposits all of your cash.")
-    
+	"Deposits all of your cash.")
+	register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, 
+	"Deposits all of your cash.")
+	
 	register_clcmd("say /maxwit",               "withdraw_maximum", -1, 
-        "Withdraw cash until limit reached.")
-    register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, 
-        "Withdraw cash until limit reached.")
+	"Withdraw cash until limit reached.")
+	register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, 
+	"Withdraw cash until limit reached.")
 	
 	register_clcmd("maxdep",                    "deposit_maximum",  -1, 
-        "Deposits all of your cash.")
+	"Deposits all of your cash.")
 	register_clcmd("maxwit",                    "withdraw_maximum", -1, 
-        "Withdraw cash until limit reached.")
+	"Withdraw cash until limit reached.")
 	
 	register_clcmd("say",                       "say_handler",      -1)
 	register_clcmd("say_team",			      "say_handler",      -1)
-    
-    // Currently unused client commands
-    
-    //register_clcmd("say /bankhelp",       "bank_help",        -1, 
-    //    "Displays the bank help motd.")
-    //register_clcmd("say /richlist",       "bank_richlist",	-1, 
-    //    "Displays the rich list.")
-	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
-    //    "Enters you into the lottery for this week.")
 	
-    // Cvars
-    
+	// Currently unused client commands
+	
+	//register_clcmd("say /bankhelp",       "bank_help",        -1, 
+	//    "Displays the bank help motd.")
+	//register_clcmd("say /richlist",       "bank_richlist",	-1, 
+	//    "Displays the rich list.")
+	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
+	//    "Enters you into the lottery for this week.")
+	
+	// Cvars
+	
 	register_cvar("bank_offrounds", 		"3")
 	register_cvar("bank_withdrawlimit", 	"10000")
-
-    // Currently unused cvars
-    
-    //register_cvar("bank_helppage",        "")
+	
+	// Currently unused cvars
+	
+	//register_cvar("bank_helppage",        "")
 	//register_cvar("bank_richlistpage",    "")
 	
-    // Log events
-    
+	// Log events
+	
 	register_logevent("event_round_start", 2, "0=World triggered", 
-        "1=Round_Start")
+	"1=Round_Start")
 	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
-    
-    new configsDir[64]
-    get_configsdir(configsDir, 63)
+	
+	new configsDir[64]
+	get_configsdir(configsDir, 63)
 	
 	server_cmd("exec %s/sql.cfg", configsDir) // Make sure sql.cfg is executed
 }
@@ -174,7 +174,7 @@ public GetQueryState(failState, errcode, error[])
 	
 	return PLUGIN_CONTINUE
 }
-  
+
 public CheckSelectHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
 	GetQueryState(failState, errcode, error)
@@ -235,7 +235,7 @@ public client_disconnect(id)
 {
 	if(g_bHasAccount[id])
 		update_name(id)
-
+	
 	g_bHasAccount[id] = false
 	g_iMoneyWithdrawn[id] = 0
 }
@@ -363,7 +363,7 @@ public bank_withdraw(id, iWithdrawAmount)
 	
 	formatex(szQuery, 99, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
 	SQL_ThreadQuery(g_sqlTuple, "BalanceHandler", szQuery, data, 4)
-
+	
 	return PLUGIN_HANDLED
 }
 
@@ -402,7 +402,7 @@ public BalanceHandler(failState, Handle:query, error[], errcode, data[], dataSiz
 		
 		if(iLimit > iBalance)
 			iLimit = iBalance
-	
+		
 		set_balance(id, -iLimit)
 		cs_set_user_money(id, (iMoney + iLimit), 1)
 		g_iMoneyWithdrawn[id] += iLimit
@@ -578,40 +578,40 @@ public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 /*
 public bank_help(id)
 {
-	new szHelpPage[200]
-	get_cvar_string("bank_helppage", szHelpPage, 199)
-	
-	show_motd(id, szHelpPage)
+new szHelpPage[200]
+get_cvar_string("bank_helppage", szHelpPage, 199)
+
+show_motd(id, szHelpPage)
 }
 */
 /*
 public get_balance(id)
 {
-	new errorCode
-	new Handle:sqlConnection = SQL_Connect(g_sqlTuple, errorCode, g_szError, 511)
-	if(sqlConnection == Empty_Handle)
-		set_fail_state(g_szError)
-	
-	new steamId[33]
-	get_user_authid(id, steamId, 32)
-	
-	new Handle:query = SQL_PrepareQuery(sqlConnection, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
-	
-	if(!SQL_Execute(query))
-	{
-		SQL_QueryError(query,g_szError,511)
-		set_fail_state(g_szError)
-	}
-	
-	new balance = SQL_ReadResult(query, 0)
-	
-	SQL_FreeHandle(query)
-	
-	update_name(id)
-	
-	SQL_FreeHandle(sqlConnection)
-	
-	return balance
+new errorCode
+new Handle:sqlConnection = SQL_Connect(g_sqlTuple, errorCode, g_szError, 511)
+if(sqlConnection == Empty_Handle)
+	set_fail_state(g_szError)
+
+new steamId[33]
+get_user_authid(id, steamId, 32)
+
+new Handle:query = SQL_PrepareQuery(sqlConnection, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
+
+if(!SQL_Execute(query))
+{
+SQL_QueryError(query,g_szError,511)
+set_fail_state(g_szError)
+}
+
+new balance = SQL_ReadResult(query, 0)
+
+SQL_FreeHandle(query)
+
+update_name(id)
+
+SQL_FreeHandle(sqlConnection)
+
+return balance
 }
 */
 // Extras...
