@@ -77,32 +77,47 @@ public plugin_init()
 	
     // Client commands
     
-	register_clcmd("say /openaccount",          "bank_create",      -1, "Creates a bank account.")
-    register_clcmd("say_team /openaccount",     "bank_create",      -1, "Creates a bank account.")
+	register_clcmd("say /openaccount",          "bank_create",      -1, 
+        "Creates a bank account.")
+    register_clcmd("say_team /openaccount",     "bank_create",      -1, 
+        "Creates a bank account.")
 	
-	register_clcmd("say /balance",              "bank_balance",     -1, "Displays your balance.")
-    register_clcmd("say_team /balance",         "bank_balance",     -1, "Displays your balance.")
+	register_clcmd("say /balance",              "bank_balance",     -1, 
+        "Displays your balance.")
+    register_clcmd("say_team /balance",         "bank_balance",     -1, 
+        "Displays your balance.")
     
-	register_clcmd("say /moneywithdrawn",       "money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
-    register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
+	register_clcmd("say /moneywithdrawn",       "money_withdrawn",  -1, 
+        "Shows how much you've withdrawn this round.")
+    register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, 
+        "Shows how much you've withdrawn this round.")
     
-	register_clcmd("say /maxdep",               "deposit_maximum",  -1, "Deposits all of your cash.")
-    register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, "Deposits all of your cash.")
+	register_clcmd("say /maxdep",               "deposit_maximum",  -1, 
+        "Deposits all of your cash.")
+    register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, 
+        "Deposits all of your cash.")
     
-	register_clcmd("say /maxwit",               "withdraw_maximum", -1, "Withdraw cash until limit reached.")
-    register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, "Withdraw cash until limit reached.")
+	register_clcmd("say /maxwit",               "withdraw_maximum", -1, 
+        "Withdraw cash until limit reached.")
+    register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, 
+        "Withdraw cash until limit reached.")
 	
-	register_clcmd("maxdep",                    "deposit_maximum",  -1, "Deposits all of your cash.")
-	register_clcmd("maxwit",                    "withdraw_maximum", -1, "Withdraw cash until limit reached.")
+	register_clcmd("maxdep",                    "deposit_maximum",  -1, 
+        "Deposits all of your cash.")
+	register_clcmd("maxwit",                    "withdraw_maximum", -1, 
+        "Withdraw cash until limit reached.")
 	
 	register_clcmd("say",                       "say_handler",      -1)
 	register_clcmd("say_team",			      "say_handler",      -1)
     
     // Currently unused client commands
     
-    //register_clcmd("say /bankhelp",       "bank_help",        -1, "Displays the bank help motd.")
-    //register_clcmd("say /richlist",       "bank_richlist",	-1, "Displays the rich list.")
-	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, "Enters you into the lottery for this week.")
+    //register_clcmd("say /bankhelp",       "bank_help",        -1, 
+    //    "Displays the bank help motd.")
+    //register_clcmd("say /richlist",       "bank_richlist",	-1, 
+    //    "Displays the rich list.")
+	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
+    //    "Enters you into the lottery for this week.")
 	
     // Cvars
     
@@ -116,7 +131,8 @@ public plugin_init()
 	
     // Log events
     
-	register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
+	register_logevent("event_round_start", 2, "0=World triggered", 
+        "1=Round_Start")
 	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
     
     new configsDir[64]
