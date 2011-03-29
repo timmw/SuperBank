@@ -142,20 +142,43 @@ public plugin_init()
 	"1=Round_Start")
 	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
 	
-	new configsDir[64]
-	get_configsdir(configsDir, 63)
-	
-	server_cmd("exec %s/sql.cfg", configsDir) // Make sure sql.cfg is executed
 }
 
 public plugin_cfg()
 {
 	g_sqlTuple = SQL_MakeStdTuple()
+	
+	new szQuery[360]
+	
+	formatex(szQuery, 359, "CREATE TABLE IF NOT EXISTS `bank_users`\
+	(\
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, \
+	`username` VARCHAR(32) NOT NULL, \
+	`steam_id` VARCHAR(32) NOT NULL,\
+	`balance` BIGINT UNSIGNED NOT NULL DEFAULT 0, \
+	`date_opened` DATETIME NOT NULL, \
+	`access` TINYINT(1) NOT NULL DEFAULT 0,\
+	PRIMARY KEY(`id`),\
+	UNIQUE(`steam_id`)\
+	) ENGINE = InnoDB")
+	
+	// Automatically create the bank_users table if it doesn't already exist
+	SQL_ThreadQuery(g_sqlTuple, "CreateTableHandler", szQuery)
 }
 
 /**
- * Check whether the player has an account in the database
+ * Handle to create table automatically
  */
+public CreateTableHandler(failState, Handle:query, error[], errcode)
+{
+	GetQueryState(failState, errcode, error)
+	
+	return PLUGIN_CONTINUE
+}
+
+/**
+* Check whether the player has an account in the database
+*/
 public check_account(id)
 {
 	new steamId[33]
@@ -173,8 +196,8 @@ public check_account(id)
 }
 
 /**
- * Function to check if the query or connection has failed
- */
+* Function to check if the query or connection has failed
+*/
 public GetQueryState(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
@@ -189,8 +212,8 @@ public GetQueryState(failState, errcode, error[])
 }
 
 /**
- * Handler for checking if the user has an account
- */
+* Handler for checking if the user has an account
+*/
 public CheckSelectHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
 	GetQueryState(failState, errcode, error)
@@ -205,8 +228,8 @@ public CheckSelectHandler(failState, Handle:query, error[], errcode, data[], dat
 }
 
 /**
- * Check if the player typed /deposit or/withdraw
- */
+* Check if the player typed /deposit or/withdraw
+*/
 public say_handler(id)
 {
 	new said[191]
@@ -260,8 +283,8 @@ public client_disconnect(id)
 }
 
 /**
- * Withdraw as much from the player's account as they are allowed
- */
+* Withdraw as much from the player's account as they are allowed
+*/
 public withdraw_maximum(id)
 {
 	if(g_bHasAccount[id] == false)
@@ -326,8 +349,8 @@ public withdraw_maximum(id)
 }
 
 /**
- * Withdraw money from the account
- */
+* Withdraw money from the account
+*/
 public bank_withdraw(id, iWithdrawAmount)
 {
 	if(g_bHasAccount[id] == false)
@@ -393,8 +416,8 @@ public bank_withdraw(id, iWithdrawAmount)
 }
 
 /**
- * Handler for queries which do require a result
- */
+* Handler for queries which do require a result
+*/
 public BalanceHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
 	GetQueryState(failState, errcode, error)
@@ -445,8 +468,8 @@ public BalanceHandler(failState, Handle:query, error[], errcode, data[], dataSiz
 }
 
 /**
- * Deposit all of the player's cash into their account
- */
+* Deposit all of the player's cash into their account
+*/
 public deposit_maximum(id)
 {
 	if(g_bHasAccount[id] == false)
@@ -472,8 +495,8 @@ public deposit_maximum(id)
 }
 
 /**
- * Deposit money into the player's account
- */
+* Deposit money into the player's account
+*/
 public bank_deposit(id, iDepositAmount)
 {
 	if(g_bHasAccount[id] == false)
@@ -503,8 +526,8 @@ public bank_deposit(id, iDepositAmount)
 }
 
 /**
- * Show the player how much they have withdrawn so far this round
- */
+* Show the player how much they have withdrawn so far this round
+*/
 public money_withdrawn(id)
 {
 	if(g_bHasAccount[id])
@@ -528,8 +551,8 @@ public money_withdrawn(id)
 }
 
 /**
- * Create bank account
- */
+* Create bank account
+*/
 public bank_create(id)
 {	
 	if(g_bHasAccount[id])
@@ -556,8 +579,8 @@ public bank_create(id)
 }
 
 /**
- * Display the player's balance in chat
- */
+* Display the player's balance in chat
+*/
 public bank_balance(id)
 {
 	if(g_bHasAccount[id])
@@ -587,8 +610,8 @@ public bank_balance(id)
 }
 
 /**
- * Set the player's balance in the database
- */
+* Set the player's balance in the database
+*/
 public set_balance(id, iBalanceChange)
 {
 	new steamId[33]
@@ -603,8 +626,8 @@ public set_balance(id, iBalanceChange)
 }
 
 /**
- * Update the player's name in the database
- */
+* Update the player's name in the database
+*/
 public update_name(id)
 {
 	new szName[33], szSteamId[33]
@@ -619,8 +642,8 @@ public update_name(id)
 }
 
 /**
- * Used for queries which don't return anything
- */
+* Used for queries which don't return anything
+*/
 public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
 	GetQueryState(failState, errcode, error)
