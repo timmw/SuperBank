@@ -3,9 +3,9 @@
 #include <cstrike>
 #include <sqlx>
 
-#define PLUGIN    "SuperBank"
-#define AUTHOR	"timmw"
-#define VERSION	"0.1.1"
+#define PLUGIN   	"SuperBank"
+#define AUTHOR		"timmw"
+#define VERSION		"0.1.1"
 
 /**	--- TABLE SQL --------------------------------------------------
 * 	
@@ -66,9 +66,16 @@
 *	//say /richlist
 */
 
+// The handle for the database tuple
 new Handle:g_sqlTuple
+
+// How many rounds have past
 new g_iRound = 0
+
+// Array storing whether each player has an account or not
 new bool:g_bHasAccount[33] = false
+
+// Array storing how much each player has withdrawn so far this round
 new g_iMoneyWithdrawn[33] = 0
 
 public plugin_init()
@@ -146,6 +153,9 @@ public plugin_cfg()
 	g_sqlTuple = SQL_MakeStdTuple()
 }
 
+/**
+ * Check whether the player has an account in the database
+ */
 public check_account(id)
 {
 	new steamId[33]
@@ -162,6 +172,9 @@ public check_account(id)
 	return PLUGIN_HANDLED	
 }
 
+/**
+ * Function to check if the query or connection has failed
+ */
 public GetQueryState(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
@@ -175,6 +188,9 @@ public GetQueryState(failState, errcode, error[])
 	return PLUGIN_CONTINUE
 }
 
+/**
+ * Handler for checking if the user has an account
+ */
 public CheckSelectHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
 	GetQueryState(failState, errcode, error)
@@ -188,6 +204,9 @@ public CheckSelectHandler(failState, Handle:query, error[], errcode, data[], dat
 	return PLUGIN_CONTINUE
 }
 
+/**
+ * Check if the player typed /deposit or/withdraw
+ */
 public say_handler(id)
 {
 	new said[191]
@@ -240,6 +259,9 @@ public client_disconnect(id)
 	g_iMoneyWithdrawn[id] = 0
 }
 
+/**
+ * Withdraw as much from the player's account as they are allowed
+ */
 public withdraw_maximum(id)
 {
 	if(g_bHasAccount[id] == false)
@@ -303,6 +325,9 @@ public withdraw_maximum(id)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Withdraw money from the account
+ */
 public bank_withdraw(id, iWithdrawAmount)
 {
 	if(g_bHasAccount[id] == false)
@@ -367,6 +392,9 @@ public bank_withdraw(id, iWithdrawAmount)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Handler for queries which do require a result
+ */
 public BalanceHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
 	GetQueryState(failState, errcode, error)
@@ -416,6 +444,9 @@ public BalanceHandler(failState, Handle:query, error[], errcode, data[], dataSiz
 	return PLUGIN_CONTINUE
 }
 
+/**
+ * Deposit all of the player's cash into their account
+ */
 public deposit_maximum(id)
 {
 	if(g_bHasAccount[id] == false)
@@ -440,6 +471,9 @@ public deposit_maximum(id)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Deposit money into the player's account
+ */
 public bank_deposit(id, iDepositAmount)
 {
 	if(g_bHasAccount[id] == false)
@@ -468,6 +502,9 @@ public bank_deposit(id, iDepositAmount)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Show the player how much they have withdrawn so far this round
+ */
 public money_withdrawn(id)
 {
 	if(g_bHasAccount[id])
@@ -490,6 +527,9 @@ public money_withdrawn(id)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Create bank account
+ */
 public bank_create(id)
 {	
 	if(g_bHasAccount[id])
@@ -515,6 +555,9 @@ public bank_create(id)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Display the player's balance in chat
+ */
 public bank_balance(id)
 {
 	if(g_bHasAccount[id])
@@ -543,6 +586,9 @@ public bank_balance(id)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Set the player's balance in the database
+ */
 public set_balance(id, iBalanceChange)
 {
 	new steamId[33]
@@ -556,6 +602,9 @@ public set_balance(id, iBalanceChange)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Update the player's name in the database
+ */
 public update_name(id)
 {
 	new szName[33], szSteamId[33]
@@ -569,6 +618,9 @@ public update_name(id)
 	return PLUGIN_HANDLED
 }
 
+/**
+ * Used for queries which don't return anything
+ */
 public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
 	GetQueryState(failState, errcode, error)
