@@ -115,7 +115,7 @@ public plugin_init()
 	"Withdraw cash until limit reached.")
 	
 	register_clcmd("say",                       "say_handler",      -1)
-	register_clcmd("say_team",			      "say_handler",      -1)
+	register_clcmd("say_team",					"say_handler",      -1)
 	
 	// Currently unused client commands
 	
