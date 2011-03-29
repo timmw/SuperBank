@@ -65,3 +65,11 @@ isn't ready for use in the real world yet!**
 * lottery
 
 * donations
+
+## Requirements
+
+* Amxmodx 1.8.1
+
+* MySQL module
+
+* MySQL 5.1
