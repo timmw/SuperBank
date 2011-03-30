@@ -7,6 +7,8 @@
 #define AUTHOR		"timmw"
 #define VERSION		"0.1.1"
 
+//#define DEBUG
+
 /**	--- TABLE SQL --------------------------------------------------
 * 	
 * 	- Users Table
@@ -84,43 +86,36 @@ public plugin_init()
 	
 	// Client commands
 	
-	register_clcmd("say /openaccount",          "bank_create",      -1, 
-	"Creates a bank account.")
-	register_clcmd("say_team /openaccount",     "bank_create",      -1, 
-	"Creates a bank account.")
+	register_clcmd("say /openaccount",          "bank_create",      -1, "Creates a bank account.")
+	register_clcmd("say_team /openaccount",     "bank_create",      -1, "Creates a bank account.")
 	
-	register_clcmd("say /balance",              "bank_balance",     -1, 
-	"Displays your balance.")
-	register_clcmd("say_team /balance",         "bank_balance",     -1, 
-	"Displays your balance.")
+	register_clcmd("say /balance",              "bank_balance",     -1, "Displays your balance.")
+	register_clcmd("say_team /balance",         "bank_balance",     -1, "Displays your balance.")
 	
-	register_clcmd("say /moneywithdrawn",       "money_withdrawn",  -1, 
-	"Shows how much you've withdrawn this round.")
-	register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, 
-	"Shows how much you've withdrawn this round.")
+	register_clcmd("say /moneywithdrawn",       "money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
+	register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
 	
-	register_clcmd("say /maxdep",               "deposit_maximum",  -1, 
-	"Deposits all of your cash.")
-	register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, 
-	"Deposits all of your cash.")
+	register_clcmd("say /maxdep",               "deposit_maximum",  -1, "Deposits all of your cash.")
+	register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, "Deposits all of your cash.")
 	
-	register_clcmd("say /maxwit",               "withdraw_maximum", -1, 
-	"Withdraw cash until limit reached.")
-	register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, 
-	"Withdraw cash until limit reached.")
+	register_clcmd("say /maxwit",               "withdraw_maximum", -1, "Withdraw cash until limit reached.")
+	register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, "Withdraw cash until limit reached.")
 	
-	register_clcmd("maxdep",                    "deposit_maximum",  -1, 
-	"Deposits all of your cash.")
-	register_clcmd("maxwit",                    "withdraw_maximum", -1, 
-	"Withdraw cash until limit reached.")
+	register_clcmd("maxdep",                    "deposit_maximum",  -1, "Deposits all of your cash.")
+	register_clcmd("maxwit",                    "withdraw_maximum", -1, "Withdraw cash until limit reached.")
 	
 	register_clcmd("say",                       "say_handler",      -1)
 	register_clcmd("say_team",					"say_handler",      -1)
 	
+	register_clcmd("say /bankinfo", 			"bank_info",		-1, "Show the player a motd with info about bank.")
+	register_clcmd("say_team /bankinfo", 		"bank_info",		-1, "Show the player a motd with info about bank.")
+	
+	register_clcmd("say /bankhelp",       		"bank_help",       	-1, "Displays the bank help motd.")
+	register_clcmd("say_team /bankhelp",		"bank_help",       	-1, "Displays the bank help motd.")
+	
 	// Currently unused client commands
 	
-	//register_clcmd("say /bankhelp",       "bank_help",        -1, 
-	//    "Displays the bank help motd.")
+	
 	//register_clcmd("say /richlist",       "bank_richlist",	-1, 
 	//    "Displays the rich list.")
 	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
@@ -130,6 +125,11 @@ public plugin_init()
 	
 	register_cvar("bank_offrounds", 		"3")
 	register_cvar("bank_withdrawlimit", 	"10000")
+	
+	register_cvar("amx_sql_host", "")
+	register_cvar("amx_sql_user", "")
+	register_cvar("amx_sql_pass", "")
+	register_cvar("amx_sql_db", "")
 	
 	// Currently unused cvars
 	
@@ -142,6 +142,10 @@ public plugin_init()
 	"1=Round_Start")
 	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
 	
+	new configsDir[64]
+	get_configsdir(configsDir, 63)
+	
+	server_cmd("exec %s/sql.cfg", configsDir)
 }
 
 public plugin_cfg()
@@ -166,12 +170,63 @@ public plugin_cfg()
 	SQL_ThreadQuery(g_sqlTuple, "CreateTableHandler", szQuery)
 }
 
+public bank_help(id)
+{
+	new configsDir[128]
+	get_configsdir(configsDir, 127)
+	format(configsDir, 127, "%s/superbank/bank_help.html", configsDir)
+	
+	show_motd(id, configsDir)
+}
+
+public bank_info(id)
+{
+	new data[1]
+	data[0] = id
+	SQL_ThreadQuery(g_sqlTuple, "bank_info_handler", "SELECT COUNT(`id`), SUM(`balance`) FROM `bank_users`", data, 1)
+}
+
+public bank_info_handler(failState, Handle:query, error[], errcode, data[], dataSize)
+{
+	GetQueryState(failState, errcode, error)
+	
+	new iNumAccounts = SQL_ReadResult(query, 0), szNumAccounts[32]
+	new iTotalMoney = SQL_ReadResult(query, 1), szTotalMoney[32]
+	
+	num_to_str(iNumAccounts, szNumAccounts, 31)
+	num_to_str(iTotalMoney, szTotalMoney, 31)
+	
+	// Read motd file
+	
+	new filename[128]
+	new szMotd[500]
+	
+	get_configsdir(filename, 127)
+	format(filename, 63, "%s/superbank/bank_info.html", filename)
+	
+	new line = 0, textline[256], len
+	
+	while((line = read_file(filename, line, textline, 255, len)))
+	{
+		//formatex(szMotd, 499, "%s %s", szMotd, line)
+		add(szMotd, 499, textline)
+	}
+	
+	//formatex(szMotd, 99, szMotd, iNumAccounts, iTotalMoney)
+	
+	replace_all(szMotd, 499, "TOTAL_PLAYERS", szNumAccounts)
+	replace_all(szMotd, 499, "TOTAL_BALANCE", szTotalMoney)
+	
+	show_motd(data[0], szMotd, "[BANK]")
+}
 /**
  * Handle to create table automatically
  */
 public CreateTableHandler(failState, Handle:query, error[], errcode)
 {
 	GetQueryState(failState, errcode, error)
+	
+	server_print("[BANK] Create table query success bank_users table exists or was created.")
 	
 	return PLUGIN_CONTINUE
 }
@@ -201,12 +256,18 @@ public check_account(id)
 public GetQueryState(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
+	{
+		server_print("[BANK] Could not connect to database: %s", error)
 		return set_fail_state("Could not connect to SQL database.")
+	}
 	else if(failState == TQUERY_QUERY_FAILED)
+	{
+		server_print("[BANK] Query failed: %s", error)
 		return set_fail_state("Query failed.")
+	}
 	
 	if(errcode)
-		return log_amx("Error on query: %s", error)
+		return server_print("[BANK] Error on query: %s", error)
 	
 	return PLUGIN_CONTINUE
 }
@@ -650,247 +711,3 @@ public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 	
 	return PLUGIN_CONTINUE
 }
-/*
-public bank_help(id)
-{
-new szHelpPage[200]
-get_cvar_string("bank_helppage", szHelpPage, 199)
-
-show_motd(id, szHelpPage)
-}
-*/
-/*
-public get_balance(id)
-{
-new errorCode
-new Handle:sqlConnection = SQL_Connect(g_sqlTuple, errorCode, g_szError, 511)
-if(sqlConnection == Empty_Handle)
-	set_fail_state(g_szError)
-
-new steamId[33]
-get_user_authid(id, steamId, 32)
-
-new Handle:query = SQL_PrepareQuery(sqlConnection, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
-
-if(!SQL_Execute(query))
-{
-SQL_QueryError(query,g_szError,511)
-set_fail_state(g_szError)
-}
-
-new balance = SQL_ReadResult(query, 0)
-
-SQL_FreeHandle(query)
-
-update_name(id)
-
-SQL_FreeHandle(sqlConnection)
-
-return balance
-}
-*/
-// Extras...
-/*public bank_menu(id)
-{
-new menu = menu_create("[PROTOTYPE] Bank Menu", "menu_handler")
-
-if(g_bHasAccount[id] == false)
-	menu_additem(menu, "Create account", "1", -1)
-else
-{
-menu_additem(menu, "Check balance",		"2", -1)
-menu_addblank(menu, 0)
-menu_additem(menu, "Withdraw money",	"3", -1)
-menu_additem(menu, "Withdraw maximum",	"4", -1)
-menu_addblank(menu, 0)
-menu_additem(menu, "Deposit money",		"5", -1)
-menu_additem(menu, "Deposit maximum",	"6", -1)
-menu_addblank(menu, 0)
-menu_additem(menu, "Bank Help",			"7", -1)
-}
-
-menu_setprop(menu, MPROP_EXIT, MEXIT_ALL)
-
-menu_display(id, menu, 0)
-
-return PLUGIN_HANDLED
-}
-
-public menu_handler(id, menu, item)
-{
-if(item == MENU_EXIT)
-{
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-
-new data[6], iName[64]
-new access, callback
-
-menu_item_getinfo(menu, item, access, data,5, iName, 63, callback)
-
-new key = str_to_num(data)
-
-switch(key)
-{
-case 1:
-{
-bank_create(id)
-client_print(id, print_chat, "[BANK] Your account has been created successfully.");
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-case 2:
-{
-new balance = get_balance(id)
-client_print(id, print_chat, "[BANK] You have $%i in your account.", balance)
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-case 3:
-{
-client_print(id, print_chat, "[BANK] Please enter the amount you wish to withdraw.")
-client_cmd(id, "messagemode")
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-case 4:
-{
-withdraw_maximum(id)
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-case 5:
-{
-client_print(id, print_chat, "[BANK] Please enter the amount you wish to deposit.")
-client_cmd(id, "messagemode")
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-case 6:
-{
-deposit_maximum(id)
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}
-case 7:
-{
-bank_help(id)
-
-menu_destroy(menu)
-return PLUGIN_HANDLED	
-}
-}
-
-menu_destroy(menu)
-return PLUGIN_HANDLED
-}*/
-/*public bank_richlist(id)
-{
-new szRichListPage[200]
-get_cvar_string("bank_richlistpage", szRichListPage, 199)
-
-show_motd(id, szRichListPage)
-}*/
-/*public get_userid(id)
-{
-new errorCode
-new Handle:sqlConnection = SQL_Connect(g_sqlTuple, errorCode, g_szError, 511)
-if(sqlConnection == Empty_Handle)
-	set_fail_state(g_szError)
-
-new szSteamId[33]
-get_user_authid(id, szSteamId, 32)
-
-new Handle:query = SQL_PrepareQuery(sqlConnection, "SELECT `userId` FROM `bank_users` WHERE `userSteamId` = '%s'", szSteamId)
-
-if(!SQL_Execute(query))
-{
-SQL_QueryError(query,g_szError,511)
-set_fail_state(g_szError)
-}
-
-new iUserId = SQL_ReadResult(query, 0)
-
-SQL_FreeHandle(query)
-SQL_FreeHandle(sqlConnection)
-
-return iUserId
-}*/
-/*public enter_lottery(id)
-{
-if(g_bHasAccount[id])
-{
-new errorCode
-new Handle:sqlConnection = SQL_Connect(g_sqlTuple, errorCode, g_szError, 511)
-if(sqlConnection == Empty_Handle)
-	set_fail_state(g_szError)
-
-new Handle:query = SQL_PrepareQuery(sqlConnection, "SELECT `drawId` FROM `bank_lottery_draws` ORDER BY `drawId` DESC LIMIT 1")
-
-if(!SQL_Execute(query))
-{
-SQL_QueryError(query,g_szError,511)
-set_fail_state(g_szError)
-}
-
-new iDrawId = SQL_ReadResult(query, 0)
-
-SQL_FreeHandle(query)
-
-new iUserId = get_userid(id)
-
-new Handle:query2 = SQL_PrepareQuery(sqlConnection, "SELECT `drawId` FROM `bank_lottery_entries` WHERE `drawId` = %i AND `userId` = %i", iDrawId, iUserId)
-
-new iNumResults = SQL_NumResults(query2)
-
-SQL_FreeHandle(query2)
-
-if(iNumResults < 0)
-{
-new iBalance = get_balance(id)
-if(iBalance < 20000)
-{
-client_print(id, print_chat, "[BANK] Sorry, you need $20,000 in your account to enter the lottery.")
-return PLUGIN_HANDLED
-}
-else
-{
-query = SQL_PrepareQuery(sqlConnection, "INSERT INTO `bank_lottery_entries` (`userId`, `drawId`) VALUES (%i, %i)", iUserId, iDrawId)
-
-if(!SQL_Execute(query))
-{
-SQL_QueryError(query,g_szError,511)
-set_fail_state(g_szError)
-}
-
-SQL_FreeHandle(query)
-SQL_FreeHandle(sqlConnection)
-
-client_print(id, print_chat, "[BANK] You have entered the lottery for this week. Good luck!")
-set_balance(id, iBalance - 20000)
-return PLUGIN_HANDLED
-}
-}
-else
-{
-client_print(id, print_chat, "[BANK] You have already entered this week's lottery.")
-return PLUGIN_HANDLED
-}
-
-SQL_FreeHandle(sqlConnection)
-return PLUGIN_HANDLED
-}
-else
-{
-client_print(id, print_chat, "[BANK] You need a bank account in order to enter the lottery, create one by typing /openaccount in chat.")
-return PLUGIN_HANDLED
-}
-return PLUGIN_HANDLED	
-}*/
