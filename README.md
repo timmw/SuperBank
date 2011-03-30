@@ -9,11 +9,35 @@ database.
 **Please note that this plugin hasn't been officially released and therefore 
 isn't ready for use in the real world yet!**
 
-## Cvars
+## Requirements
+
+* Amxmodx 1.8.1
+
+* MySQL module
+
+* MySQL 5.1
+
+## Installation
+
+1. Create a mysql database and assign a user to it with all privileges
+
+2. Upload the files to the appropriate places
+
+3. Make sure you fill in sql.cfg (included with amx) with your database details
+
+5. Add superbank.amxx into plugins.ini
+
+6. Restart your server
+
+## Configuration
+
+Add the folling cvars into amxx.cfg
 
 * bank_offrounds - how many rounds before players can withdraw money (default 3)
 
-* bank_withdrawlimit - how much a player can withdraw in a round
+* bank_withdrawlimit - how much a player can withdraw in a round (default 10,000)
+
+*Congratulations! You have installed SuperBank!*
 
 ## Commands
 
@@ -42,19 +66,7 @@ isn't ready for use in the real world yet!**
 
 * /deposit &lt;amount&gt; - Deposit &lt;amount&gt;.
 
-## Installation
 
-1. Create a mysql database and assign a user to it with all privileges
-
-2. Upload the files to the appropriate places
-
-3. Edit the superbank.cfg file
-
-4. Make sure you fill in sql.cfg (included with amx) with your database details
-
-5. Add superbank.amxx into plugins.ini
-
-6. Restart your server
 
 ## Future improvements
 
@@ -65,11 +77,3 @@ isn't ready for use in the real world yet!**
 * lottery
 
 * donations
-
-## Requirements
-
-* Amxmodx 1.8.1
-
-* MySQL module
-
-* MySQL 5.1
