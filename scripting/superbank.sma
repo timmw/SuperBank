@@ -81,73 +81,64 @@ new g_iMoneyWithdrawn[33] = 0
 
 public plugin_init()
 {
-	register_plugin(PLUGIN, VERSION, AUTHOR)
-	
-	// Client commands
-	
-	register_clcmd("say /openaccount",          "bank_create",      -1, "Creates a bank account.")
-	register_clcmd("say_team /openaccount",     "bank_create",      -1, "Creates a bank account.")
-	
-	register_clcmd("say /balance",              "bank_balance",     -1, "Displays your balance.")
-	register_clcmd("say_team /balance",         "bank_balance",     -1, "Displays your balance.")
-	
-	register_clcmd("say /moneywithdrawn",       "money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
-	register_clcmd("say_team /moneywithdrawn",  "money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
-	
-	register_clcmd("say /maxdep",               "deposit_maximum",  -1, "Deposits all of your cash.")
-	register_clcmd("say_team /maxdep",          "deposit_maximum",  -1, "Deposits all of your cash.")
-	
-	register_clcmd("say /maxwit",               "withdraw_maximum", -1, "Withdraw cash until limit reached.")
-	register_clcmd("say_team /maxwit",          "withdraw_maximum", -1, "Withdraw cash until limit reached.")
-	
-	register_clcmd("maxdep",                    "deposit_maximum",  -1, "Deposits all of your cash.")
-	register_clcmd("maxwit",                    "withdraw_maximum", -1, "Withdraw cash until limit reached.")
-	
-	register_clcmd("say",                       "say_handler",      -1)
-	register_clcmd("say_team",					"say_handler",      -1)
-	
-	register_clcmd("say /bankinfo", 			"bank_info",		-1, "Show the player a motd with info about bank.")
-	register_clcmd("say_team /bankinfo", 		"bank_info",		-1, "Show the player a motd with info about bank.")
-	
-	register_clcmd("say /bankhelp",       		"bank_help",       	-1, "Displays the bank help motd.")
-	register_clcmd("say_team /bankhelp",		"bank_help",       	-1, "Displays the bank help motd.")
-	
-	register_clcmd("say /richlist",				"bank_richlist",	-1, "Displays the richest players motd.")
-	register_clcmd("say_team /richlist",		"bank_richlist",	-1, "Displays the richest players motd.")
-	
-	// Currently unused client commands
-	
-	
-	//register_clcmd("say /richlist",       "bank_richlist",	-1, 
-	//    "Displays the rich list.")
-	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
-	//    "Enters you into the lottery for this week.")
-	
-	// Cvars
-	
-	register_cvar("bank_offrounds", 		"3")
-	register_cvar("bank_withdrawlimit", 	"10000")
-	
-	register_cvar("amx_sql_host", "")
-	register_cvar("amx_sql_user", "")
-	register_cvar("amx_sql_pass", "")
-	register_cvar("amx_sql_db", "")
-	
-	// Currently unused cvars
-	
-	//register_cvar("bank_helppage",        "")
-	//register_cvar("bank_richlistpage",    "")
-	
-	// Log events
-	
-	register_logevent("event_round_start", 2, "0=World triggered", 
-	"1=Round_Start")
-	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
-	
-	new configsDir[64]
-	get_configsdir(configsDir, 63)
-	
-	server_cmd("exec %s/sql.cfg", configsDir)
+    register_plugin(PLUGIN, VERSION, AUTHOR)
+    
+    // Client commands
+    
+    register_clcmd("say /openaccount",		"bank_create",      	-1, "Creates a bank account.")
+    register_clcmd("say_team /openaccount",	"bank_create",      	-1, "Creates a bank account.")
+    
+    register_clcmd("say /balance",		"bank_balance",     	-1, "Displays your balance.")
+    register_clcmd("say_team /balance",		"bank_balance",     	-1, "Displays your balance.")
+    
+    register_clcmd("say /moneywithdrawn",	"money_withdrawn",  	-1, "Shows how much you've withdrawn this round.")
+    register_clcmd("say_team /moneywithdrawn",	"money_withdrawn",  	-1, "Shows how much you've withdrawn this round.")
+    
+    register_clcmd("say /maxdep",		"deposit_maximum",  	-1, "Deposits all of your cash.")
+    register_clcmd("say_team /maxdep",		"deposit_maximum",  	-1, "Deposits all of your cash.")
+    
+    register_clcmd("say /maxwit", 		"withdraw_maximum", 	-1, "Withdraw cash until limit reached.")
+    register_clcmd("say_team /maxwit",		"withdraw_maximum", 	-1, "Withdraw cash until limit reached.")
+    
+    register_clcmd("maxdep",			"deposit_maximum",  	-1, "Deposits all of your cash.")
+    register_clcmd("maxwit",			"withdraw_maximum", 	-1, "Withdraw cash until limit reached.")
+    
+    register_clcmd("say",			"say_handler",      	-1)
+    register_clcmd("say_team",			"say_handler",      	-1)
+    
+    register_clcmd("say /bankinfo", 		"bank_info",		-1, "Show the player a motd with info about bank.")
+    register_clcmd("say_team /bankinfo", 	"bank_info",		-1, "Show the player a motd with info about bank.")
+    
+    register_clcmd("say /bankhelp",       	"bank_help",       	-1, "Displays the bank help motd.")
+    register_clcmd("say_team /bankhelp",	"bank_help",       	-1, "Displays the bank help motd.")
+    
+    register_clcmd("say /richlist",		"bank_richlist",	-1, "Displays the richest players motd.")
+    register_clcmd("say_team /richlist",	"bank_richlist",	-1, "Displays the richest players motd.")
+    
+    // Currently unused client commands
+
+    //register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
+    //    "Enters you into the lottery for this week.")
+    
+    // Cvars
+    
+    register_cvar("bank_offrounds", 	"3")
+    register_cvar("bank_withdrawlimit", "10000")
+    
+    register_cvar("amx_sql_host", 	"")
+    register_cvar("amx_sql_user", 	"")
+    register_cvar("amx_sql_pass", 	"")
+    register_cvar("amx_sql_db",		"")
+    
+    // Log events
+    
+    register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
+    //register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
+    
+    new configsDir[64]
+    get_configsdir(configsDir, 63)
+    
+    server_cmd("exec %s/sql.cfg", configsDir)
 }
 
 public plugin_cfg()
