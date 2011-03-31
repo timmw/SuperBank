@@ -723,15 +723,15 @@ public set_balance(id, iBalanceChange)
 */
 public update_name(id)
 {
-	new szName[33], szSteamId[33]
-	get_user_name(id, szName, 32)
-	get_user_authid(id, szSteamId, 32)
-	
-	new szQuery[100] 
-	formatex(szQuery, 99, "UPDATE `bank_users` SET `username` = '%s' WHERE `steam_id` = '%s'", szName, szSteamId)
-	SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
-	
-	return PLUGIN_HANDLED
+    new szName[33], szSteamId[33]
+    get_user_name(id, szName, 32)
+    get_user_authid(id, szSteamId, 32)
+    
+    new szQuery[100] 
+    formatex(szQuery, 99, "UPDATE `bank_users` SET `username` = '%s' WHERE `steam_id` = %s", szName, szSteamId)
+    SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
+    
+    return PLUGIN_HANDLED
 }
 
 /**
