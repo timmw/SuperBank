@@ -284,17 +284,22 @@ public GetQueryState(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
 	{
-		server_print("[BANK] Could not connect to database: %s", error)
-		return set_fail_state("Could not connect to SQL database.")
+	    server_print("[BANK] Could not connect to database: %s", error)
+	    log_amx("[BANK] Could not connect to database: %s", error)
+	    return set_fail_state("Could not connect to SQL database.")
 	}
 	else if(failState == TQUERY_QUERY_FAILED)
 	{
-		server_print("[BANK] Query failed: %s", error)
-		return set_fail_state("Query failed.")
+	    server_print("[BANK] Query failed: %s", error)
+	    log_amx("[BANK] Query failed: %s", error)
+	    return set_fail_state("Query failed.")
 	}
 	
 	if(errcode)
-		return server_print("[BANK] Error on query: %s", error)
+	{
+	    server_print("[BANK] Error on query: %s", error)
+	    log_amx("[BANK] Error on query: %s", error)
+	}
 	
 	return PLUGIN_CONTINUE
 }
@@ -734,7 +739,6 @@ public update_name(id)
 */
 public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
-	GetQueryState(failState, errcode, error)
-	
-	return PLUGIN_CONTINUE
+    GetQueryState(failState, errcode, error)
+    return PLUGIN_CONTINUE
 }
