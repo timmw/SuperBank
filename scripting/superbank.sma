@@ -284,20 +284,20 @@ public GetQueryState(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
 	{
-	    server_print("[BANK] Could not connect to database: %s", error)
+	    //server_print("[BANK] Could not connect to database: %s", error)
 	    log_amx("[BANK] Could not connect to database: %s", error)
 	    return set_fail_state("Could not connect to SQL database.")
 	}
 	else if(failState == TQUERY_QUERY_FAILED)
 	{
-	    server_print("[BANK] Query failed: %s", error)
+	    //server_print("[BANK] Query failed: %s", error)
 	    log_amx("[BANK] Query failed: %s", error)
 	    return set_fail_state("Query failed.")
 	}
 	
 	if(errcode)
 	{
-	    server_print("[BANK] Error on query: %s", error)
+	    //server_print("[BANK] Error on query: %s", error)
 	    log_amx("[BANK] Error on query: %s", error)
 	}
 	
@@ -727,8 +727,9 @@ public update_name(id)
     get_user_name(id, szName, 32)
     get_user_authid(id, szSteamId, 32)
     
-    new szQuery[100] 
-    formatex(szQuery, 99, "UPDATE `bank_users` SET `username` = '%s' WHERE `steam_id` = %s", szName, szSteamId)
+    new szQuery[128] 
+    formatex(szQuery, 127, "UPDATE `bank_users` SET `username` = '%s' WHERE `steam_id` = '%s'", szName, szSteamId)
+    
     SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
     
     return PLUGIN_HANDLED
@@ -738,7 +739,8 @@ public update_name(id)
 * Used for queries which don't return anything
 */
 public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
-{	
+{
     GetQueryState(failState, errcode, error)
+    
     return PLUGIN_CONTINUE
 }
