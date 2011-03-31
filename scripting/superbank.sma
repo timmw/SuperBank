@@ -5,9 +5,7 @@
 
 #define PLUGIN   	"SuperBank"
 #define AUTHOR		"timmw"
-#define VERSION		"0.1.1"
-
-//#define DEBUG
+#define VERSION		"0.2.0"
 
 /**	--- TABLE SQL --------------------------------------------------
 * 	
@@ -55,6 +53,7 @@
 * 	CMD List ----------------------------------------------------
 * 
 * 	say /bankhelp
+* 	say /bankinfo
 * 	say /openaccount
 * 	say /balance
 * 	say /moneywithdrawn
@@ -113,6 +112,9 @@ public plugin_init()
 	register_clcmd("say /bankhelp",       		"bank_help",       	-1, "Displays the bank help motd.")
 	register_clcmd("say_team /bankhelp",		"bank_help",       	-1, "Displays the bank help motd.")
 	
+	register_clcmd("say /richlist",				"bank_richlist",	-1, "Displays the richest players motd.")
+	register_clcmd("say_team /richlist",		"bank_richlist",	-1, "Displays the richest players motd.")
+	
 	// Currently unused client commands
 	
 	
@@ -170,19 +172,53 @@ public plugin_cfg()
 	SQL_ThreadQuery(g_sqlTuple, "CreateTableHandler", szQuery)
 }
 
+public bank_richlist(id)
+{
+	new data[1]
+	data[0] = id
+	
+	SQL_ThreadQuery(g_sqlTuple, "bank_richlist_handler", "SELECT `username`, `balance` FROM `bank_users` ORDER BY `balance` DESC LIMIT 0,15", data, 1)
+}
+
+public bank_richlist_handler(failState, Handle:query, error[], errcode, data[], dataSize)
+{
+	GetQueryState(failState, errcode, error)
+	
+	new szMotd[1000], textLine[70]
+	new iBalance, szUsername[32]
+	
+	formatex(szMotd, 999, "<table>")
+	
+	while(SQL_MoreResults(query))
+	{
+	    SQL_ReadResult(query, 0, szUsername, 31)
+	    iBalance = SQL_ReadResult(query, 1)
+	    
+	    formatex(textLine, 69, "<tr><td>%s</td><td>%i</td></tr>", szUsername, iBalance)
+	    add(szMotd, 999, textLine)
+		
+	    SQL_NextRow(query)
+	}
+	
+	add(szMotd, 999, "</table>")
+	
+	show_motd(data[0], szMotd, "[BANK]")
+}
+
 public bank_help(id)
 {
-	new configsDir[128]
-	get_configsdir(configsDir, 127)
-	format(configsDir, 127, "%s/superbank/bank_help.html", configsDir)
+	new helpfilePath[128]
+	get_configsdir(helpfilePath, 127)
+	format(helpfilePath, 127, "%s/superbank/bank_help.html", helpfilePath)
 	
-	show_motd(id, configsDir)
+	show_motd(id, helpfilePath)
 }
 
 public bank_info(id)
 {
 	new data[1]
 	data[0] = id
+	
 	SQL_ThreadQuery(g_sqlTuple, "bank_info_handler", "SELECT COUNT(`id`), SUM(`balance`) FROM `bank_users`", data, 1)
 }
 
