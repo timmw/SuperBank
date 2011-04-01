@@ -5,7 +5,12 @@
 
 #define PLUGIN   	"SuperBank"
 #define AUTHOR		"timmw"
-#define VERSION		"0.2.0"
+#define VERSION		"0.3.0"
+
+#define SQL_HOST		""
+#define SQL_USER		""
+#define SQL_PASS		""
+#define SQL_DATABASE	""
 
 /**	--- TABLE SQL --------------------------------------------------
 * 	
@@ -51,7 +56,8 @@
 *     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
 * 
 * 	CMD List ----------------------------------------------------
-* 
+* 	
+* 	say /richlist
 * 	say /bankhelp
 * 	say /bankinfo
 * 	say /openaccount
@@ -63,8 +69,6 @@
 * 	say /maxwit
 * 	maxdep
 * 	maxwit
-* 	
-*	//say /richlist
 */
 
 // The handle for the database tuple
@@ -79,75 +83,81 @@ new bool:g_bHasAccount[33] = false
 // Array storing how much each player has withdrawn so far this round
 new g_iMoneyWithdrawn[33] = 0
 
+// File cahces
+new g_richlistCache[1000] = ""
+new g_bankinfoCache[1000] = ""
+new g_bankhelpCache[1200] = ""
+new g_cssCache[256] = ""
+
 public plugin_init()
 {
-    register_plugin(PLUGIN, VERSION, AUTHOR)
-    
-    // Client commands
-    
-    register_clcmd("say /openaccount",		"bank_create",      	-1, "Creates a bank account.")
-    register_clcmd("say_team /openaccount",	"bank_create",      	-1, "Creates a bank account.")
-    
-    register_clcmd("say /balance",		"bank_balance",     	-1, "Displays your balance.")
-    register_clcmd("say_team /balance",		"bank_balance",     	-1, "Displays your balance.")
-    
-    register_clcmd("say /moneywithdrawn",	"money_withdrawn",  	-1, "Shows how much you've withdrawn this round.")
-    register_clcmd("say_team /moneywithdrawn",	"money_withdrawn",  	-1, "Shows how much you've withdrawn this round.")
-    
-    register_clcmd("say /maxdep",		"deposit_maximum",  	-1, "Deposits all of your cash.")
-    register_clcmd("say_team /maxdep",		"deposit_maximum",  	-1, "Deposits all of your cash.")
-    
-    register_clcmd("say /maxwit", 		"withdraw_maximum", 	-1, "Withdraw cash until limit reached.")
-    register_clcmd("say_team /maxwit",		"withdraw_maximum", 	-1, "Withdraw cash until limit reached.")
-    
-    register_clcmd("maxdep",			"deposit_maximum",  	-1, "Deposits all of your cash.")
-    register_clcmd("maxwit",			"withdraw_maximum", 	-1, "Withdraw cash until limit reached.")
-    
-    register_clcmd("say",			"say_handler",      	-1)
-    register_clcmd("say_team",			"say_handler",      	-1)
-    
-    register_clcmd("say /bankinfo", 		"bank_info",		-1, "Show the player a motd with info about bank.")
-    register_clcmd("say_team /bankinfo", 	"bank_info",		-1, "Show the player a motd with info about bank.")
-    
-    register_clcmd("say /bankhelp",       	"bank_help",       	-1, "Displays the bank help motd.")
-    register_clcmd("say_team /bankhelp",	"bank_help",       	-1, "Displays the bank help motd.")
-    
-    register_clcmd("say /richlist",		"bank_richlist",	-1, "Displays the richest players motd.")
-    register_clcmd("say_team /richlist",	"bank_richlist",	-1, "Displays the richest players motd.")
-    
-    // Currently unused client commands
-
-    //register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
-    //    "Enters you into the lottery for this week.")
-    
-    // Cvars
-    
-    register_cvar("bank_offrounds", 	"3")
-    register_cvar("bank_withdrawlimit", "10000")
-    
-    register_cvar("amx_sql_host", 	"")
-    register_cvar("amx_sql_user", 	"")
-    register_cvar("amx_sql_pass", 	"")
-    register_cvar("amx_sql_db",		"")
-    
-    // Log events
-    
-    register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
-    //register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
-    
-    new configsDir[64]
-    get_configsdir(configsDir, 63)
-    
-    server_cmd("exec %s/sql.cfg", configsDir)
+	register_plugin(PLUGIN, VERSION, AUTHOR)
+	
+	// Cvars
+	
+	register_cvar("bank_offrounds", 	"3")
+	register_cvar("bank_withdrawlimit", "10000")
+	
+	register_cvar("amx_sql_host", 	SQL_HOST)
+	register_cvar("amx_sql_user", 	SQL_USER)
+	register_cvar("amx_sql_pass", 	SQL_PASS)
+	register_cvar("amx_sql_db",		SQL_DATABASE)
+	
+	new configsDir[64]
+	get_configsdir(configsDir, 63)
+	
+	server_cmd("exec %s/sql.cfg", configsDir)
+	
+	// Client commands
+	
+	register_clcmd("say /openaccount",			"bank_create",      -1, "Creates a bank account.")
+	register_clcmd("say_team /openaccount",		"bank_create",      -1, "Creates a bank account.")
+	
+	register_clcmd("say /balance",				"bank_balance",     -1, "Displays your balance.")
+	register_clcmd("say_team /balance",			"bank_balance",     -1, "Displays your balance.")
+	
+	register_clcmd("say /moneywithdrawn",		"money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
+	register_clcmd("say_team /moneywithdrawn",	"money_withdrawn",  -1, "Shows how much you've withdrawn this round.")
+	
+	register_clcmd("say /maxdep",				"deposit_maximum",  -1, "Deposits all of your cash.")
+	register_clcmd("say_team /maxdep",			"deposit_maximum",  -1, "Deposits all of your cash.")
+	
+	register_clcmd("say /maxwit", 				"withdraw_maximum", -1, "Withdraw cash until limit reached.")
+	register_clcmd("say_team /maxwit",			"withdraw_maximum", -1, "Withdraw cash until limit reached.")
+	
+	register_clcmd("maxdep",					"deposit_maximum",  -1, "Deposits all of your cash.")
+	register_clcmd("maxwit",					"withdraw_maximum", -1, "Withdraw cash until limit reached.")
+	
+	register_clcmd("say",						"say_handler",      -1)
+	register_clcmd("say_team",					"say_handler",      -1)
+	
+	register_clcmd("say /bankinfo", 			"bank_info",		-1, "Show the player a motd with info about bank.")
+	register_clcmd("say_team /bankinfo", 		"bank_info",		-1, "Show the player a motd with info about bank.")
+	
+	register_clcmd("say /bankhelp",       		"bank_help",       	-1, "Displays the bank help motd.")
+	register_clcmd("say_team /bankhelp",		"bank_help",       	-1, "Displays the bank help motd.")
+	
+	register_clcmd("say /richlist",				"bank_richlist",	-1, "Displays the richest players motd.")
+	register_clcmd("say_team /richlist",		"bank_richlist",	-1, "Displays the richest players motd.")
+	
+	// Currently unused client commands
+	
+	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
+	//    "Enters you into the lottery for this week.")
+	
+	// Log events
+	
+	register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
+	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
 }
 
 public plugin_cfg()
 {
 	g_sqlTuple = SQL_MakeStdTuple()
 	
-	new szQuery[360]
+	new szQuery[354]
 	
-	formatex(szQuery, 359, "CREATE TABLE IF NOT EXISTS `bank_users`\
+	formatex(szQuery, 353, "CREATE TABLE IF NOT EXISTS `bank_users`\
 	(\
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, \
 	`username` VARCHAR(32) NOT NULL, \
@@ -161,6 +171,25 @@ public plugin_cfg()
 	
 	// Automatically create the bank_users table if it doesn't already exist
 	SQL_ThreadQuery(g_sqlTuple, "CreateTableHandler", szQuery)
+	
+	return PLUGIN_HANDLED
+}
+
+public update_css(){
+	if(equal(g_cssCache, ""))
+	{
+		new cssFilePath[128]
+		get_configsdir(cssFilePath, 127)
+		format(cssFilePath, 127, "%s/superbank/style.css", cssFilePath)
+		
+		new line = 0, textline[64], len
+		while((line = read_file(cssFilePath, line, textline, 63, len)))
+		{
+			add(g_cssCache, 255, textline)
+		}
+		
+		log_amx("CSS cache file created.")
+	}
 }
 
 public bank_richlist(id)
@@ -174,35 +203,87 @@ public bank_richlist(id)
 public bank_richlist_handler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
 	GetQueryState(failState, errcode, error)
+	new id = data[0]
 	
-	new szMotd[1000], textLine[70]
-	new iBalance, szUsername[32]
+	// If the richlist cache is empty, cache the template file
+	if(equal(g_richlistCache, ""))
+	{		
+		new richlistFilePath[128]
+		get_configsdir(richlistFilePath, 127)
+		format(richlistFilePath, 127, "%s/superbank/bank_richlist.html", richlistFilePath)
+		
+		new line = 0, textline[256], len
+		while((line = read_file(richlistFilePath, line, textline, 255, len)))
+		{
+			add(g_richlistCache, 999, textline)
+		}
+		
+		update_css()
+		
+		replace(g_richlistCache, 1199, "{styles}", g_cssCache)
+		
+		log_amx("Richlist cache file created.")
+	}
 	
-	formatex(szMotd, 999, "<table>")
+	new templateHeader[256],
+		templateFooter[64],
+		buffer[800],
+		templateLoop[128]
+	
+	split(g_richlistCache, templateHeader, 255, buffer, 799, "{loop_start}")
+	split(buffer, templateLoop, 127, templateFooter, 63, "{loop_end}")
+
+	buffer = ""
+	
+	new szBalance[21], szUsername[32]
 	
 	while(SQL_MoreResults(query))
 	{
-	    SQL_ReadResult(query, 0, szUsername, 31)
-	    iBalance = SQL_ReadResult(query, 1)
-	    
-	    formatex(textLine, 69, "<tr><td>%s</td><td>%i</td></tr>", szUsername, iBalance)
-	    add(szMotd, 999, textLine)
+		SQL_ReadResult(query, 0, szUsername, 31)
+		SQL_ReadResult(query, 1, szBalance, 20)
 		
-	    SQL_NextRow(query)
+		new currentLine[128]
+		copy(currentLine, 127, templateLoop)
+		
+		replace(currentLine, 127, "{player_name}", szUsername)
+		replace(currentLine, 127, "{player_balance}", szBalance)
+		
+		add(buffer, 799, currentLine)
+		
+		SQL_NextRow(query)
 	}
 	
-	add(szMotd, 999, "</table>")
+	new richlist[1000]
 	
-	show_motd(data[0], szMotd, "[BANK]")
+	add(richlist, 999, templateHeader, 255)
+	add(richlist, 999, buffer, 799)
+	add(richlist, 999, templateFooter, 31)
+	
+	show_motd(id, richlist, "[BANK] Richlist")
 }
 
 public bank_help(id)
 {
-	new helpfilePath[128]
-	get_configsdir(helpfilePath, 127)
-	format(helpfilePath, 127, "%s/superbank/bank_help.html", helpfilePath)
+	if(equal(g_bankhelpCache, ""))
+	{		
+		new bankhelpFilePath[128]
+		get_configsdir(bankhelpFilePath, 127)
+		format(bankhelpFilePath, 127, "%s/superbank/bank_help.html", bankhelpFilePath)
+		
+		new line = 0, textline[256], len
+		while((line = read_file(bankhelpFilePath, line, textline, 255, len)))
+		{
+			add(g_bankhelpCache, 1199, textline)
+		}
+		
+		update_css()
+		
+		replace(g_bankhelpCache, 1199, "{styles}", g_cssCache)
+		
+		log_amx("Bank help cache file created.")
+	}
 	
-	show_motd(id, helpfilePath)
+	show_motd(id, g_bankhelpCache, "[BANK] Help")
 }
 
 public bank_info(id)
@@ -216,6 +297,7 @@ public bank_info(id)
 public bank_info_handler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
 	GetQueryState(failState, errcode, error)
+	new id = data[0]
 	
 	new iNumAccounts = SQL_ReadResult(query, 0), szNumAccounts[32]
 	new iTotalMoney = SQL_ReadResult(query, 1), szTotalMoney[32]
@@ -223,32 +305,38 @@ public bank_info_handler(failState, Handle:query, error[], errcode, data[], data
 	num_to_str(iNumAccounts, szNumAccounts, 31)
 	num_to_str(iTotalMoney, szTotalMoney, 31)
 	
-	// Read motd file
-	
-	new filename[128]
-	new szMotd[500]
-	
-	get_configsdir(filename, 127)
-	format(filename, 63, "%s/superbank/bank_info.html", filename)
-	
-	new line = 0, textline[256], len
-	
-	while((line = read_file(filename, line, textline, 255, len)))
+	// If the bank info cache is empty, cache the template file
+	if(equal(g_bankinfoCache, ""))
 	{
-		//formatex(szMotd, 499, "%s %s", szMotd, line)
-		add(szMotd, 499, textline)
+		new bankinfoFilePath[128]
+		
+		get_configsdir(bankinfoFilePath, 127)
+		format(bankinfoFilePath, 63, "%s/superbank/bank_info.html", bankinfoFilePath)
+		
+		new line = 0, textline[256], len
+		
+		while((line = read_file(bankinfoFilePath, line, textline, 255, len)))
+		{
+			add(g_bankinfoCache, 999, textline)
+		}
+		
+		update_css()
+		replace(g_bankinfoCache, 1199, "{styles}", g_cssCache)
+		
+		log_amx("Bank info cache file created.")
 	}
 	
-	//formatex(szMotd, 99, szMotd, iNumAccounts, iTotalMoney)
+	new bankinfo[1000]
+	copy(bankinfo, 999, g_bankinfoCache)
 	
-	replace_all(szMotd, 499, "TOTAL_PLAYERS", szNumAccounts)
-	replace_all(szMotd, 499, "TOTAL_BALANCE", szTotalMoney)
+	replace_all(bankinfo, 499, "{total_players}", szNumAccounts)
+	replace_all(bankinfo, 499, "{total_balance}", szTotalMoney)
 	
-	show_motd(data[0], szMotd, "[BANK]")
+	show_motd(id, bankinfo, "[BANK] Info")
 }
 /**
- * Handle to create table automatically
- */
+* Handle to create table automatically
+*/
 public CreateTableHandler(failState, Handle:query, error[], errcode)
 {
 	GetQueryState(failState, errcode, error)
@@ -259,8 +347,8 @@ public CreateTableHandler(failState, Handle:query, error[], errcode)
 }
 
 /**
-* Check whether the player has an account in the database
-*/
+ * Check whether the player has an account in the database
+ */
 public check_account(id)
 {
 	new steamId[33]
@@ -278,27 +366,24 @@ public check_account(id)
 }
 
 /**
-* Function to check if the query or connection has failed
-*/
+ * Function to check if the query or connection has failed
+ */
 public GetQueryState(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
 	{
-	    //server_print("[BANK] Could not connect to database: %s", error)
-	    log_amx("[BANK] Could not connect to database: %s", error)
-	    return set_fail_state("Could not connect to SQL database.")
+		log_amx("Could not connect to database: %s", error)
+		return set_fail_state("Could not connect to SQL database.")
 	}
 	else if(failState == TQUERY_QUERY_FAILED)
 	{
-	    //server_print("[BANK] Query failed: %s", error)
-	    log_amx("[BANK] Query failed: %s", error)
-	    return set_fail_state("Query failed.")
+		log_amx("Query failed: %s", error)
+		return set_fail_state("Query failed.")
 	}
 	
 	if(errcode)
 	{
-	    //server_print("[BANK] Error on query: %s", error)
-	    log_amx("[BANK] Error on query: %s", error)
+		log_amx("Error on query: %s", error)
 	}
 	
 	return PLUGIN_CONTINUE
@@ -433,9 +518,9 @@ public withdraw_maximum(id)
 	new steamId[33]
 	get_user_authid(id, steamId, 32)
 	
-	new szQuery[100]
+	new szQuery[89]
 	
-	formatex(szQuery, 99, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
+	formatex(szQuery, 88, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
 	SQL_ThreadQuery(g_sqlTuple, "BalanceHandler", szQuery, data, 3)
 	
 	return PLUGIN_HANDLED
@@ -621,17 +706,26 @@ public bank_deposit(id, iDepositAmount)
 /**
 * Show the player how much they have withdrawn so far this round
 */
+
 public money_withdrawn(id)
 {
 	if(g_bHasAccount[id])
 	{
 		update_name(id)
 		
-		new szWithdrawLimit[10]
-		get_cvar_string("bank_withdrawlimit", szWithdrawLimit, 9)
+		new szWithdrawLimit[6]
+		get_cvar_string("bank_withdrawlimit", szWithdrawLimit, 5)
 		new iWithdrawLimit = str_to_num(szWithdrawLimit)
 		
-		client_print(id, print_chat, "[BANK] You have withdrawn $%i of a possible $%i so far this round.", g_iMoneyWithdrawn[id], iWithdrawLimit)
+		if(iWithdrawLimit <= 0)
+		{
+			client_print(id, print_chat, "[BANK] You have withdrawn $%i so far this round.", g_iMoneyWithdrawn[id])
+		}
+		else
+		{
+			client_print(id, print_chat, "[BANK] You have withdrawn $%i of a possible $%i so far this round.", g_iMoneyWithdrawn[id], iWithdrawLimit)
+		}
+		
 		return PLUGIN_HANDLED
 	}
 	else
@@ -659,9 +753,9 @@ public bank_create(id)
 	get_user_name(id, szName, 32)
 	get_user_authid(id, szSteamId, 32)
 	
-	new szQuery[150]
+	new szQuery[170]
 	
-	formatex(szQuery, 149, "INSERT INTO `bank_users` (`username`, `steam_id`, `date_opened`) VALUES ('%s', '%s', NOW())", szName, szSteamId)
+	formatex(szQuery, 169, "INSERT INTO `bank_users` (`username`, `steam_id`, `date_opened`) VALUES ('%s', '%s', NOW())", szName, szSteamId)
 	SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
 	
 	g_bHasAccount[id] = true
@@ -723,16 +817,16 @@ public set_balance(id, iBalanceChange)
 */
 public update_name(id)
 {
-    new szName[33], szSteamId[33]
-    get_user_name(id, szName, 32)
-    get_user_authid(id, szSteamId, 32)
-    
-    new szQuery[128] 
-    formatex(szQuery, 127, "UPDATE `bank_users` SET `username` = '%s' WHERE `steam_id` = '%s'", szName, szSteamId)
-    
-    SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
-    
-    return PLUGIN_HANDLED
+	new szName[33], szSteamId[33]
+	get_user_name(id, szName, 32)
+	get_user_authid(id, szSteamId, 32)
+	
+	new szQuery[128] 
+	formatex(szQuery, 127, "UPDATE `bank_users` SET `username` = ^"%s^" WHERE `steam_id` = '%s'", szName, szSteamId)
+	
+	SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
+	
+	return PLUGIN_HANDLED
 }
 
 /**
@@ -740,7 +834,8 @@ public update_name(id)
 */
 public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
-    GetQueryState(failState, errcode, error)
-    
-    return PLUGIN_CONTINUE
+	GetQueryState(failState, errcode, error)
+	
+	return PLUGIN_CONTINUE
 }
+	
