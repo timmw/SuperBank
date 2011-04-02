@@ -72,8 +72,6 @@ Add the folling cvars into amxx.cfg
 
 * menu
 
-* rich list to see richest players
-
 * lottery
 
 * donations
