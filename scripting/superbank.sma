@@ -57,7 +57,6 @@
  
  	CMD List ----------------------------------------------------
  	
- 	say /richlist
  	say /bankhelp
  	say /bankinfo
  	say /openaccount
@@ -175,95 +174,6 @@ public plugin_cfg()
 	return PLUGIN_HANDLED
 }
 
-// ---------------------- To be moved to bank extras ---------------------------
-public update_css(){
-	if(equal(g_cssCache, ""))
-	{
-		new cssFilePath[128]
-		get_configsdir(cssFilePath, 127)
-		format(cssFilePath, 127, "%s/superbank/style.css", cssFilePath)
-		
-		new line = 0, textline[64], len
-		while((line = read_file(cssFilePath, line, textline, 63, len)))
-		{
-			add(g_cssCache, 255, textline)
-		}
-		
-		log_amx("CSS cache file created.")
-	}
-}
-
-// ---------------------- To be moved to bank extras ---------------------------
-public bank_richlist(id)
-{
-	new data[1]
-	data[0] = id
-	
-	SQL_ThreadQuery(g_sqlTuple, "bank_richlist_handler", "SELECT `username`, `balance` FROM `bank_users` ORDER BY `balance` DESC LIMIT 0,15", data, 1)
-}
-
-// ---------------------- To be moved to bank extras ---------------------------
-public bank_richlist_handler(failState, Handle:query, error[], errcode, data[], dataSize)
-{
-	GetQueryState(failState, errcode, error)
-	new id = data[0]
-	
-	// If the richlist cache is empty, cache the template file
-	if(equal(g_richlistCache, ""))
-	{		
-		new richlistFilePath[128]
-		get_configsdir(richlistFilePath, 127)
-		format(richlistFilePath, 127, "%s/superbank/bank_richlist.html", richlistFilePath)
-		
-		new line = 0, textline[256], len
-		while((line = read_file(richlistFilePath, line, textline, 255, len)))
-		{
-			add(g_richlistCache, 999, textline)
-		}
-		
-		update_css()
-		
-		replace(g_richlistCache, 1199, "{styles}", g_cssCache)
-		
-		log_amx("Richlist cache file created.")
-	}
-	
-	new templateHeader[256],
-		templateFooter[64],
-		buffer[800],
-		templateLoop[128]
-	
-	split(g_richlistCache, templateHeader, 255, buffer, 799, "{loop_start}")
-	split(buffer, templateLoop, 127, templateFooter, 63, "{loop_end}")
-
-	buffer = ""
-	
-	new szBalance[21], szUsername[32]
-	
-	while(SQL_MoreResults(query))
-	{
-		SQL_ReadResult(query, 0, szUsername, 31)
-		SQL_ReadResult(query, 1, szBalance, 20)
-		
-		new currentLine[128]
-		copy(currentLine, 127, templateLoop)
-		
-		replace(currentLine, 127, "{player_name}", szUsername)
-		replace(currentLine, 127, "{player_balance}", szBalance)
-		
-		add(buffer, 799, currentLine)
-		
-		SQL_NextRow(query)
-	}
-	
-	new richlist[1000]
-	
-	add(richlist, 999, templateHeader, 255)
-	add(richlist, 999, buffer, 799)
-	add(richlist, 999, templateFooter, 31)
-	
-	show_motd(id, richlist, "[BANK] Richlist")
-}
 
 public bank_help(id)
 {
