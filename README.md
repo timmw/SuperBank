@@ -33,11 +33,11 @@ isn't ready for use in the real world yet!**
 
 Add the folling cvars into amxx.cfg
 
-* bank_offrounds - how many rounds before players can withdraw money (default 3)
+* bank_offrounds - how many rounds after the start of the map before players can withdraw money (default 3)
 
-* bank_withdrawlimit - how much a player can withdraw in a round (default 10,000)
+* bank_withdrawlimit - how much a player can withdraw in a round (default 10000)
 
-*Congratulations! You have installed SuperBank!*
+* Congratulations! You have installed SuperBank!*
 
 ## Commands
 
@@ -45,7 +45,7 @@ Add the folling cvars into amxx.cfg
   account they will be shown a message informing them they already have an 
   account.
 
-* /balance - Displays the player's balance in player chat to that player.
+* /balance - Displays the player's balance in chat to that player.
 
 * /moneywithdrawn - Shows the player how much they have withdrawn so far this
   round.
