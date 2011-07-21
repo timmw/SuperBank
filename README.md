@@ -37,7 +37,7 @@ Add the folling cvars into amxx.cfg
 
 * bank_withdrawlimit - how much a player can withdraw in a round (default 10000)
 
-* Congratulations! You have installed SuperBank!*
+*Congratulations! You have installed SuperBank!*
 
 ## Commands
 
