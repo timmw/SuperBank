@@ -12,63 +12,63 @@
 #define SQL_PASS		""
 #define SQL_DATABASE	""
 
-/**	--- TABLE SQL --------------------------------------------------
-* 	
-* 	- Users Table
-* 
-* 	CREATE TABLE IF NOT EXISTS `bank_users`
-* 	(
-* 		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
-*		`username` VARCHAR(32) NOT NULL, 
-*		`steam_id` VARCHAR(32) NOT NULL,
-*		`balance` BIGINT UNSIGNED NOT NULL DEFAULT 0, 
-*		`date_opened` DATETIME NOT NULL, 
-* 		`access` TINYINT(1) NOT NULL DEFAULT 0,
-*		PRIMARY KEY(`id`),
-* 		UNIQUE(`steam_id`)
-*	)
-* 	
-* 	- Lottery Draws Table (not currently in use)
-* 	
-* 	CREATE TABLE IF NOT EXISTS `bank_lottery_draws`
-* 	(
-* 		`drawId` INT(5) UNSIGNED AUTO_INCREMENT NOT NULL,
-* 		`drawDate` DATETIME NOT NULL,
-* 		PRIMARY KEY(`drawId`)
-* 	)
-* 
-*	- Lottery Entries Table (not currently in use)
-* 
-* 	CREATE TABLE IF NOT EXISTS `bank_lottery_entries`
-* 	(
-* 		`userId` INT(10) UNSIGNED NOT NULL,
-*		`drawId` INT(5) UNSIGNED NOT NULL, 
-* 		FOREIGN KEY(`userId`) REFERENCES `bank_users`(`userId`),
-* 		FOREIGN KEY(`drawId`) REFERENCES `bank_lottery_draws`(`drawId`),
-* 		PRIMARY KEY(`drawId`, `userId`)
-* 	)
-* 
-* 	NOTES -------------------------------------------------------
-* 
-* 	User name is updated on client connect, every time a user checks/alters
-*     their balance and when they disconnect.
-* 
-*     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
-* 
-* 	CMD List ----------------------------------------------------
-* 	
-* 	say /richlist
-* 	say /bankhelp
-* 	say /bankinfo
-* 	say /openaccount
-* 	say /balance
-* 	say /moneywithdrawn
-* 	say /deposit <amount>
-* 	say /withdraw <amount>
-* 	say /maxdep
-* 	say /maxwit
-* 	maxdep
-* 	maxwit
+/*	--- TABLE SQL --------------------------------------------------
+ 	
+ 	- Users Table
+ 
+ 	CREATE TABLE IF NOT EXISTS `bank_users`
+ 	(
+ 		`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+		`username` VARCHAR(32) NOT NULL, 
+		`steam_id` VARCHAR(32) NOT NULL,
+		`balance` BIGINT UNSIGNED NOT NULL DEFAULT 0, 
+		`date_opened` DATETIME NOT NULL, 
+ 		`access` TINYINT(1) NOT NULL DEFAULT 0,
+		PRIMARY KEY(`id`),
+ 		UNIQUE(`steam_id`)
+	)
+ 	
+ 	- Lottery Draws Table (not currently in use)
+ 	
+ 	CREATE TABLE IF NOT EXISTS `bank_lottery_draws`
+ 	(
+ 		`drawId` INT(5) UNSIGNED AUTO_INCREMENT NOT NULL,
+ 		`drawDate` DATETIME NOT NULL,
+ 		PRIMARY KEY(`drawId`)
+ 	)
+ 
+	- Lottery Entries Table (not currently in use)
+ 
+ 	CREATE TABLE IF NOT EXISTS `bank_lottery_entries`
+ 	(
+ 		`userId` INT(10) UNSIGNED NOT NULL,
+		`drawId` INT(5) UNSIGNED NOT NULL, 
+ 		FOREIGN KEY(`userId`) REFERENCES `bank_users`(`userId`),
+ 		FOREIGN KEY(`drawId`) REFERENCES `bank_lottery_draws`(`drawId`),
+ 		PRIMARY KEY(`drawId`, `userId`)
+ 	)
+ 
+ 	NOTES -------------------------------------------------------
+ 
+ 	User name is updated on client connect, every time a user checks/alters
+     their balance and when they disconnect.
+ 
+     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
+ 
+ 	CMD List ----------------------------------------------------
+ 	
+ 	say /richlist
+ 	say /bankhelp
+ 	say /bankinfo
+ 	say /openaccount
+ 	say /balance
+ 	say /moneywithdrawn
+ 	say /deposit <amount>
+ 	say /withdraw <amount>
+ 	say /maxdep
+ 	say /maxwit
+ 	maxdep
+ 	maxwit
 */
 
 // The handle for the database tuple
@@ -175,6 +175,7 @@ public plugin_cfg()
 	return PLUGIN_HANDLED
 }
 
+// ---------------------- To be moved to bank extras ---------------------------
 public update_css(){
 	if(equal(g_cssCache, ""))
 	{
@@ -192,6 +193,7 @@ public update_css(){
 	}
 }
 
+// ---------------------- To be moved to bank extras ---------------------------
 public bank_richlist(id)
 {
 	new data[1]
@@ -200,6 +202,7 @@ public bank_richlist(id)
 	SQL_ThreadQuery(g_sqlTuple, "bank_richlist_handler", "SELECT `username`, `balance` FROM `bank_users` ORDER BY `balance` DESC LIMIT 0,15", data, 1)
 }
 
+// ---------------------- To be moved to bank extras ---------------------------
 public bank_richlist_handler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
 	GetQueryState(failState, errcode, error)
