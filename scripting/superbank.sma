@@ -5,7 +5,7 @@
 
 #define PLUGIN   	"SuperBank"
 #define AUTHOR		"timmw"
-#define VERSION		"0.3.0"
+#define VERSION		"0.3.1"
 
 #define SQL_HOST		""
 #define SQL_USER		""
@@ -27,38 +27,17 @@
 		PRIMARY KEY(`id`),
  		UNIQUE(`steam_id`)
 	)
- 	
- 	- Lottery Draws Table (not currently in use)
- 	
- 	CREATE TABLE IF NOT EXISTS `bank_lottery_draws`
- 	(
- 		`drawId` INT(5) UNSIGNED AUTO_INCREMENT NOT NULL,
- 		`drawDate` DATETIME NOT NULL,
- 		PRIMARY KEY(`drawId`)
- 	)
- 
-	- Lottery Entries Table (not currently in use)
- 
- 	CREATE TABLE IF NOT EXISTS `bank_lottery_entries`
- 	(
- 		`userId` INT(10) UNSIGNED NOT NULL,
-		`drawId` INT(5) UNSIGNED NOT NULL, 
- 		FOREIGN KEY(`userId`) REFERENCES `bank_users`(`userId`),
- 		FOREIGN KEY(`drawId`) REFERENCES `bank_lottery_draws`(`drawId`),
- 		PRIMARY KEY(`drawId`, `userId`)
- 	)
  
  	NOTES -------------------------------------------------------
  
  	User name is updated on client connect, every time a user checks/alters
-     their balance and when they disconnect.
+    their balance and when they disconnect.
  
-     Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
+    Max. balance is $18,446,744,073,709,551,615 ($18.4 quintillion).
  
  	CMD List ----------------------------------------------------
  	
  	say /bankhelp
- 	say /bankinfo
  	say /openaccount
  	say /balance
  	say /moneywithdrawn
@@ -82,11 +61,6 @@ new bool:g_bHasAccount[33] = false
 // Array storing how much each player has withdrawn so far this round
 new g_iMoneyWithdrawn[33] = 0
 
-// File cahces
-new g_richlistCache[1000] = ""
-new g_bankinfoCache[1000] = ""
-new g_bankhelpCache[1200] = ""
-new g_cssCache[256] = ""
 
 public plugin_init()
 {
@@ -130,19 +104,8 @@ public plugin_init()
 	register_clcmd("say",						"say_handler",      -1)
 	register_clcmd("say_team",					"say_handler",      -1)
 	
-	register_clcmd("say /bankinfo", 			"bank_info",		-1, "Show the player a motd with info about bank.")
-	register_clcmd("say_team /bankinfo", 		"bank_info",		-1, "Show the player a motd with info about bank.")
-	
 	register_clcmd("say /bankhelp",       		"bank_help",       	-1, "Displays the bank help motd.")
 	register_clcmd("say_team /bankhelp",		"bank_help",       	-1, "Displays the bank help motd.")
-	
-	register_clcmd("say /richlist",				"bank_richlist",	-1, "Displays the richest players motd.")
-	register_clcmd("say_team /richlist",		"bank_richlist",	-1, "Displays the richest players motd.")
-	
-	// Currently unused client commands
-	
-	//register_clcmd("say /enterlottery",   "enter_lottery",	-1, 
-	//    "Enters you into the lottery for this week.")
 	
 	// Log events
 	
@@ -174,79 +137,16 @@ public plugin_cfg()
 	return PLUGIN_HANDLED
 }
 
-
 public bank_help(id)
 {
-	if(equal(g_bankhelpCache, ""))
-	{		
-		new bankhelpFilePath[128]
-		get_configsdir(bankhelpFilePath, 127)
-		format(bankhelpFilePath, 127, "%s/superbank/bank_help.html", bankhelpFilePath)
-		
-		new line = 0, textline[256], len
-		while((line = read_file(bankhelpFilePath, line, textline, 255, len)))
-		{
-			add(g_bankhelpCache, 1199, textline)
-		}
-		
-		update_css()
-		
-		replace(g_bankhelpCache, 1199, "{styles}", g_cssCache)
-		
-		log_amx("Bank help cache file created.")
-	}
-	
-	show_motd(id, g_bankhelpCache, "[BANK] Help")
+	new bankhelpFilePath[128]
+	get_configsdir(bankhelpFilePath, 127)
+	format(bankhelpFilePath, 127, "%s/superbank/bank_help.html", bankhelpFilePath)
+
+	show_motd(id, bankhelpFilePath, "[BANK] Help")
 }
 
-public bank_info(id)
-{
-	new data[1]
-	data[0] = id
-	
-	SQL_ThreadQuery(g_sqlTuple, "bank_info_handler", "SELECT COUNT(`id`), SUM(`balance`) FROM `bank_users`", data, 1)
-}
 
-public bank_info_handler(failState, Handle:query, error[], errcode, data[], dataSize)
-{
-	GetQueryState(failState, errcode, error)
-	new id = data[0]
-	
-	new iNumAccounts = SQL_ReadResult(query, 0), szNumAccounts[32]
-	new iTotalMoney = SQL_ReadResult(query, 1), szTotalMoney[32]
-	
-	num_to_str(iNumAccounts, szNumAccounts, 31)
-	num_to_str(iTotalMoney, szTotalMoney, 31)
-	
-	// If the bank info cache is empty, cache the template file
-	if(equal(g_bankinfoCache, ""))
-	{
-		new bankinfoFilePath[128]
-		
-		get_configsdir(bankinfoFilePath, 127)
-		format(bankinfoFilePath, 63, "%s/superbank/bank_info.html", bankinfoFilePath)
-		
-		new line = 0, textline[256], len
-		
-		while((line = read_file(bankinfoFilePath, line, textline, 255, len)))
-		{
-			add(g_bankinfoCache, 999, textline)
-		}
-		
-		update_css()
-		replace(g_bankinfoCache, 1199, "{styles}", g_cssCache)
-		
-		log_amx("Bank info cache file created.")
-	}
-	
-	new bankinfo[1000]
-	copy(bankinfo, 999, g_bankinfoCache)
-	
-	replace_all(bankinfo, 499, "{total_players}", szNumAccounts)
-	replace_all(bankinfo, 499, "{total_balance}", szTotalMoney)
-	
-	show_motd(id, bankinfo, "[BANK] Info")
-}
 /**
 * Handle to create table automatically
 */
@@ -751,4 +651,3 @@ public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
 	
 	return PLUGIN_CONTINUE
 }
-	

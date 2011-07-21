@@ -1,30 +1,18 @@
 <html><head><style>
-{styles}
+body{color:#eee;background-color:#333;padding:20px;font-family:sans-serif;line-height:1.5em;font-size:14px}td{width:50%;padding:10px;vertical-align:top}span{background:#555;padding:2px 4px;color:black;font-family:monospace;border:solid 1px #111}
 </style></head>
-<body>Commands
-<ul>
-<li>/openaccount - Opens a new account, if the player has already opened an 
-  account they will be shown a message informing them they already have an 
-  account.</li>
-
-<li>/balance - Displays the player's balance in player chat to that player.</li>
-
-<li>/moneywithdrawn - Shows the player how much they have withdrawn so far this
-  round.</li>
-
-<li>/maxdep - Deposits all of the player's cash into their account.</li>
-
-<li>/maxwit - Withdraws the maximum amount of cash a player can hold until either 
-  they have $16k, they reach their limit for that round or they have no money 
-  left in the account.</li>
-
-<li>maxdep (console) - Same as /maxdep, intended for binding to a key.</li>
-
-<li>maxwit (console) - Same as /maxwit, intended for binding to a key.</li>
-
-<li>/withdraw &lt;amount&gt; - Withdraws &lt;amount&gt; from the player's account,
-  works in a similar way to /maxwit regarding limits such as balance, money 
-  space and money per round limit.</li>
-
-<li>/deposit &lt;amount&gt; - Deposit &lt;amount&gt;.</li>
-</ul></body></html>
+<body><h2>Commands</h2>
+<table>
+<tr><td><span>/openaccount</span></td><td> Opens a new account.</td></tr>
+<tr><td><span>/balance</span> </td><td> Displays the player's balance in chat.</td></tr>
+<tr><td><span>/moneywithdrawn</span> </td><td> Shows the player how much they have withdrawn so far this
+  round.</td></tr>
+<tr><td><span>/maxdep</span> </td><td> Deposits all of the player's cash into their account.</td></tr>
+<tr><td><span>/maxwit</span> </td><td> Withdraws cash until either 
+  the player has $16k, they reach their limit for that round or they have no money 
+  left in the account.</td></tr>
+<tr><td><span>maxdep</span> (console) </td><td> Same as /maxdep.</td></tr>
+<tr><td><span>maxwit</span> (console) </td><td> Same as /maxwit.</td></tr>
+<tr><td><span>/withdraw &lt;amount&gt;</span> </td><td> Withdraws &lt;amount&gt; from the player's account.</td></tr>
+<tr><td><span>/deposit &lt;amount&gt;</span> </td><td> Deposit &lt;amount&gt;.</td></tr>
+</table></body></html>
