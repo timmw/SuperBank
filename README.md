@@ -6,9 +6,6 @@ This is a bank plugin for amxmodx which allows players to create a bank account
 which they can deposit and withdraw from in-game. The plugin requires a mysql 
 database.
 
-**Please note that this plugin hasn't been officially released and therefore 
-isn't ready for use in the real world yet!**
-
 ## Requirements
 
 * Amxmodx 1.8.1
@@ -66,12 +63,8 @@ Add the folling cvars into amxx.cfg
 
 * /deposit &lt;amount&gt; - Deposit &lt;amount&gt;.
 
-
-
 ## Future improvements
 
 * menu
 
-* lottery
-
-* donations
+* bank transfers
