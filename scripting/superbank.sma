@@ -5,10 +5,10 @@
 
 #define PLUGIN   	"SuperBank"
 #define AUTHOR		"timmw"
-#define VERSION		"0.3.1"
+#define VERSION		"1.0.0"
 
-#define SQL_HOST		""
-#define SQL_USER		""
+#define SQL_HOST		"127.0.0.1"
+#define SQL_USER		"root"
 #define SQL_PASS		""
 #define SQL_DATABASE	""
 
@@ -109,8 +109,10 @@ public plugin_init()
 	
 	// Log events
 	
-	register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
+	//register_logevent("event_round_start", 2, "0=World triggered", "1=Round_Start")
 	//register_logevent("event_round_end", 2, "0=World triggered", "1=Round_End")
+	
+	register_event("HLTV", "event_round_start", "a", "1=0", "2=0")
 }
 
 public plugin_cfg()
@@ -132,7 +134,7 @@ public plugin_cfg()
 	) ENGINE = InnoDB")
 	
 	// Automatically create the bank_users table if it doesn't already exist
-	SQL_ThreadQuery(g_sqlTuple, "CreateTableHandler", szQuery)
+	SQL_ThreadQuery(g_sqlTuple, "create_table_handler", szQuery)
 	
 	return PLUGIN_HANDLED
 }
@@ -150,9 +152,9 @@ public bank_help(id)
 /**
 * Handle to create table automatically
 */
-public CreateTableHandler(failState, Handle:query, error[], errcode)
+public create_table_handler(failState, Handle:query, error[], errcode)
 {
-	GetQueryState(failState, errcode, error)
+	get_query_state(failState, errcode, error)
 	
 	server_print("[BANK] Create table query success bank_users table exists or was created.")
 	
@@ -173,7 +175,7 @@ public check_account(id)
 	
 	new data[1]
 	data[0] = id
-	SQL_ThreadQuery(g_sqlTuple, "CheckSelectHandler", szQuery, data, 1)
+	SQL_ThreadQuery(g_sqlTuple, "check_select_handler", szQuery, data, 1)
 	
 	return PLUGIN_HANDLED	
 }
@@ -181,7 +183,7 @@ public check_account(id)
 /**
  * Function to check if the query or connection has failed
  */
-public GetQueryState(failState, errcode, error[])
+public get_query_state(failState, errcode, error[])
 {
 	if(failState == TQUERY_CONNECT_FAILED)
 	{
@@ -205,9 +207,9 @@ public GetQueryState(failState, errcode, error[])
 /**
 * Handler for checking if the user has an account
 */
-public CheckSelectHandler(failState, Handle:query, error[], errcode, data[], dataSize)
+public check_select_handler(failState, Handle:query, error[], errcode, data[], dataSize)
 {	
-	GetQueryState(failState, errcode, error)
+	get_query_state(failState, errcode, error)
 	
 	if(SQL_NumResults(query) != 0)
 	{
@@ -267,8 +269,8 @@ public client_putinserver(id)
 public client_disconnect(id)
 {
 	if(g_bHasAccount[id])
-		update_name(id)
-	
+		deposit_maximum(id)
+
 	g_bHasAccount[id] = false
 	g_iMoneyWithdrawn[id] = 0
 }
@@ -334,7 +336,7 @@ public withdraw_maximum(id)
 	new szQuery[89]
 	
 	formatex(szQuery, 88, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
-	SQL_ThreadQuery(g_sqlTuple, "BalanceHandler", szQuery, data, 3)
+	SQL_ThreadQuery(g_sqlTuple, "balance_handler", szQuery, data, 3)
 	
 	return PLUGIN_HANDLED
 }
@@ -401,7 +403,7 @@ public bank_withdraw(id, iWithdrawAmount)
 	new szQuery[100]
 	
 	formatex(szQuery, 99, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", steamId)
-	SQL_ThreadQuery(g_sqlTuple, "BalanceHandler", szQuery, data, 4)
+	SQL_ThreadQuery(g_sqlTuple, "balance_handler", szQuery, data, 4)
 	
 	return PLUGIN_HANDLED
 }
@@ -409,9 +411,9 @@ public bank_withdraw(id, iWithdrawAmount)
 /**
 * Handler for queries which do require a result
 */
-public BalanceHandler(failState, Handle:query, error[], errcode, data[], dataSize)
+public balance_handler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
-	GetQueryState(failState, errcode, error)
+	get_query_state(failState, errcode, error)
 	
 	new szBalance[21]
 	SQL_ReadResult(query, 0, szBalance, 20)
@@ -569,7 +571,7 @@ public bank_create(id)
 	new szQuery[170]
 	
 	formatex(szQuery, 169, "INSERT INTO `bank_users` (`username`, `steam_id`, `date_opened`) VALUES ('%s', '%s', NOW())", szName, szSteamId)
-	SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
+	SQL_ThreadQuery(g_sqlTuple, "query_handler", szQuery)
 	
 	g_bHasAccount[id] = true
 	
@@ -596,7 +598,7 @@ public bank_balance(id)
 		new szQuery[100]
 		
 		formatex(szQuery, 99, "SELECT `balance` FROM `bank_users` WHERE `steam_id` = '%s'", szSteamId)
-		SQL_ThreadQuery(g_sqlTuple, "BalanceHandler", szQuery, data, 1)
+		SQL_ThreadQuery(g_sqlTuple, "balance_handler", szQuery, data, 1)
 		
 		return PLUGIN_HANDLED
 	}
@@ -620,7 +622,7 @@ public set_balance(id, iBalanceChange)
 	new szQuery[100]
 	
 	formatex(szQuery, 99, "UPDATE `bank_users` SET `balance` = balance + %i WHERE `steam_id` = '%s'", iBalanceChange, steamId)
-	SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
+	SQL_ThreadQuery(g_sqlTuple, "query_handler", szQuery)
 	
 	return PLUGIN_HANDLED
 }
@@ -637,7 +639,7 @@ public update_name(id)
 	new szQuery[128] 
 	formatex(szQuery, 127, "UPDATE `bank_users` SET `username` = ^"%s^" WHERE `steam_id` = '%s'", szName, szSteamId)
 	
-	SQL_ThreadQuery(g_sqlTuple, "QueryHandler", szQuery)
+	SQL_ThreadQuery(g_sqlTuple, "query_handler", szQuery)
 	
 	return PLUGIN_HANDLED
 }
@@ -645,9 +647,9 @@ public update_name(id)
 /**
 * Used for queries which don't return anything
 */
-public QueryHandler(failState, Handle:query, error[], errcode, data[], dataSize)
+public query_handler(failState, Handle:query, error[], errcode, data[], dataSize)
 {
-	GetQueryState(failState, errcode, error)
+	get_query_state(failState, errcode, error)
 	
 	return PLUGIN_CONTINUE
 }
