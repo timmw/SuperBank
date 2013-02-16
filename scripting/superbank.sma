@@ -171,7 +171,7 @@ public create_table_handler(failState, Handle:query, error[], errcode){
 	get_query_state(failState, errcode, error)
 	
 	server_print("[BANK] Create table query success bank_users table exists or \
-				 was created.")
+was created.")
 	
 	return PLUGIN_CONTINUE
 }
@@ -185,8 +185,8 @@ public check_account(id){
 	
 	new szQuery[100]
 	
-	formatex(szQuery, 99, "SELECT `id` FROM `bank_users` WHERE `steam_id` =\
-			 '%s'", steamId)
+	formatex(szQuery, 99, "SELECT `id` FROM `bank_users` WHERE `steam_id` = \
+'%s'", steamId)
 	
 	new data[1]
 	data[0] = id
@@ -284,7 +284,7 @@ public client_disconnect(id){
 public withdraw_maximum(id){
 	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create\
-					 one by typing /openaccount in chat.")
+one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -296,13 +296,13 @@ public withdraw_maximum(id){
 	
 	if(g_iRound <= iOffRounds){
 		client_print(id, print_chat, "[BANK] You cannot withdraw for the first \
-					 %i rounds.", iOffRounds)
+%i rounds.", iOffRounds)
 		return PLUGIN_HANDLED
 	}
 	
 	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){
 		client_print(id, print_chat, "[BANK] You must join a team before you \
-					 can withdraw money.")
+can withdraw money.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -315,13 +315,13 @@ public withdraw_maximum(id){
 	
 	if(iMoneySpace <= 0){
 		client_print(id, print_chat, "[BANK] You can only hold a maximum of \
-					 $16000.")
+$16000.")
 		return PLUGIN_HANDLED
 	}
 	
 	if(iMoneyLeft <= 0){
 		client_print(id, print_chat, "[BANK] You have already reached the \
-					 maximum withdraw limit for this round.")
+maximum withdraw limit for this round.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -338,7 +338,7 @@ public withdraw_maximum(id){
 	new szQuery[89]
 	
 	formatex(szQuery, 88, "SELECT `balance` FROM `bank_users` WHERE `steam_id` \
-			 = '%s'", steamId)
+= '%s'", steamId)
 	SQL_ThreadQuery(g_sqlTuple, "balance_handler", szQuery, data, 3)
 	
 	return PLUGIN_HANDLED
@@ -350,7 +350,7 @@ public withdraw_maximum(id){
 public bank_withdraw(id, iWithdrawAmount){
 	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
-					 one by typing /openaccount in chat.")
+one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -362,13 +362,13 @@ public bank_withdraw(id, iWithdrawAmount){
 	
 	if(g_iRound <= iOffRounds){
 		client_print(id, print_chat, "[BANK] You cannot withdraw for the first \
-					 %i rounds.", iOffRounds)
+%i rounds.", iOffRounds)
 		return PLUGIN_HANDLED
 	}
 	
 	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){
 		client_print(id, print_chat, "[BANK] You must join a team before you \
-					 can withdraw money.")
+can withdraw money.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -381,13 +381,13 @@ public bank_withdraw(id, iWithdrawAmount){
 	
 	if(iMoneySpace == 0){
 		client_print(id, print_chat, "[BANK] You can only hold a maximum of \
-					 $16000.")
+$16000.")
 		return PLUGIN_HANDLED
 	}
 	
 	if(iMoneyLeft == 0){
 		client_print(id, print_chat, "[BANK] You have already reached the \
-					 maximum withdraw limit for this round.")
+maximum withdraw limit for this round.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -405,7 +405,7 @@ public bank_withdraw(id, iWithdrawAmount){
 	new szQuery[100]
 	
 	formatex(szQuery, 99, "SELECT `balance` FROM `bank_users` WHERE `steam_id` \
-			 = '%s'", steamId)
+= '%s'", steamId)
 	SQL_ThreadQuery(g_sqlTuple, "balance_handler", szQuery, data, 4)
 	
 	return PLUGIN_HANDLED
@@ -474,7 +474,7 @@ public balance_handler(failState, Handle:query, error[], errcode, data[],
 public deposit_maximum(id){
 	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
-					 one by typing /openaccount in chat")
+one by typing /openaccount in chat")
 		return PLUGIN_HANDLED
 	}
 	
@@ -482,7 +482,7 @@ public deposit_maximum(id){
 	
 	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){
 		client_print(id, print_chat, "[BANK] You must join a team before you \
-					 can deposit money.")
+can deposit money.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -501,7 +501,7 @@ public deposit_maximum(id){
 public bank_deposit(id, iDepositAmount){
 	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
-					 one by typing /openaccount in chat.")
+one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -509,7 +509,7 @@ public bank_deposit(id, iDepositAmount){
 	
 	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){	
 		client_print(id, print_chat, "[BANK] You must join a team before you \
-					 can deposit money.")
+can deposit money.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -541,19 +541,18 @@ public money_withdrawn(id){
 		
 		if(iWithdrawLimit <= 0){
 			client_print(id, print_chat, "[BANK] You have withdrawn $%i so far \
-						 this round.", g_iMoneyWithdrawn[id])
+this round.", g_iMoneyWithdrawn[id])
 		}
 		else{
 			client_print(id, print_chat, "[BANK] You have withdrawn $%i of a \
-						 possible $%i so far this round.",g_iMoneyWithdrawn[id],
-						 iWithdrawLimit)
+possible $%i so far this round.",g_iMoneyWithdrawn[id], iWithdrawLimit)
 		}
 		
 		return PLUGIN_HANDLED
 	}
 	else{
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
-					 one by typing /openaccount in chat.")
+one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -577,13 +576,13 @@ public bank_create(id){
 	new szQuery[170]
 	
 	formatex(szQuery, 169, "INSERT INTO `bank_users` (`username`, `steam_id`, \
-			 `date_opened`) VALUES ('%s', '%s', NOW())", szName, szSteamId)
+`date_opened`) VALUES ('%s', '%s', NOW())", szName, szSteamId)
 	SQL_ThreadQuery(g_sqlTuple, "query_handler", szQuery)
 	
 	g_bHasAccount[id] = true
 	
 	client_print(id, print_chat, "[BANK] Your account has been created \
-				 successfully.")
+successfully.")
 	
 	return PLUGIN_HANDLED
 }
@@ -604,14 +603,14 @@ public bank_balance(id){
 		new szQuery[100]
 		
 		formatex(szQuery, 99, "SELECT `balance` FROM `bank_users` WHERE \
-				 `steam_id` = '%s'", szSteamId)
+`steam_id` = '%s'", szSteamId)
 		SQL_ThreadQuery(g_sqlTuple, "balance_handler", szQuery, data, 1)
 		
 		return PLUGIN_HANDLED
 	}
 	else{
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
-					 one by typing /openaccount in chat.")
+one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
 	}
 	
@@ -628,7 +627,7 @@ public set_balance(id, iBalanceChange){
 	new szQuery[100]
 	
 	formatex(szQuery, 99, "UPDATE `bank_users` SET `balance` = balance + %i \
-			 WHERE `steam_id` = '%s'", iBalanceChange, steamId)
+WHERE `steam_id` = '%s'", iBalanceChange, steamId)
 	SQL_ThreadQuery(g_sqlTuple, "query_handler", szQuery)
 	
 	return PLUGIN_HANDLED
@@ -644,7 +643,7 @@ public update_name(id){
 	
 	new szQuery[128] 
 	formatex(szQuery, 127, "UPDATE `bank_users` SET `username` = ^"%s^" WHERE \
-			 `steam_id` = '%s'", szName, szSteamId)
+`steam_id` = '%s'", szName, szSteamId)
 	
 	SQL_ThreadQuery(g_sqlTuple, "query_handler", szQuery)
 	
