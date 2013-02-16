@@ -62,63 +62,66 @@ new bool:g_bHasAccount[33] = false
 new g_iMoneyWithdrawn[33] = 0
 
 
-public plugin_init()
-{
+public plugin_init(){
 	register_plugin(PLUGIN, VERSION, AUTHOR)
 	
-	// Cvars
+	// CVars
 	
+	// Number of rounds the bank is disabled for at start of map
 	register_cvar("bank_offrounds", 	"3")
+	// Maximum amount allowed to be withdrawn within a round
 	register_cvar("bank_withdrawlimit", "10000")
 	
+	// SQL settings
 	register_cvar("amx_sql_host", 	SQL_HOST)
 	register_cvar("amx_sql_user", 	SQL_USER)
 	register_cvar("amx_sql_pass", 	SQL_PASS)
 	register_cvar("amx_sql_db",		SQL_DATABASE)
 	
+	// Config directory
 	new configsDir[64]
 	get_configsdir(configsDir, 63)
 	
+	// Execute sql.cfg to load database settings
 	server_cmd("exec %s/sql.cfg", configsDir)
 	
 	// Client commands
-	
-	register_clcmd("say /openaccount",			"bank_create",      -1,
+	register_clcmd("say /openaccount", "bank_create", -1,
 				   "Creates a bank account.")
-	register_clcmd("say_team /openaccount",		"bank_create",      -1,
+	register_clcmd("say_team /openaccount", "bank_create", -1,
 				   "Creates a bank account.")
 	
-	register_clcmd("say /balance",				"bank_balance",     -1,
+	register_clcmd("say /balance", "bank_balance", -1,
 				   "Displays your balance.")
-	register_clcmd("say_team /balance",			"bank_balance",     -1,
+	register_clcmd("say_team /balance", "bank_balance", -1,
 				   "Displays your balance.")
 	
-	register_clcmd("say /moneywithdrawn",		"money_withdrawn",  -1,
+	register_clcmd("say /moneywithdrawn", "money_withdrawn",  -1,
 				   "Shows how much you've withdrawn this round.")
-	register_clcmd("say_team /moneywithdrawn",	"money_withdrawn",  -1,
+	register_clcmd("say_team /moneywithdrawn", "money_withdrawn", -1,
 				   "Shows how much you've withdrawn this round.")
 	
-	register_clcmd("say /maxdep",				"deposit_maximum",  -1,
+	register_clcmd("say /maxdep", "deposit_maximum", -1,
 				   "Deposits all of your cash.")
-	register_clcmd("say_team /maxdep",			"deposit_maximum",  -1,
+	register_clcmd("say_team /maxdep", "deposit_maximum", -1,
 				   "Deposits all of your cash.")
 	
-	register_clcmd("say /maxwit", 				"withdraw_maximum", -1,
+	register_clcmd("say /maxwit", "withdraw_maximum", -1,
 				   "Withdraw cash until limit reached.")
-	register_clcmd("say_team /maxwit",			"withdraw_maximum", -1,
-				   "Withdraw cash until limit reached.")
-	
-	register_clcmd("maxdep",					"deposit_maximum",  -1,
-				   "Deposits all of your cash.")
-	register_clcmd("maxwit",					"withdraw_maximum", -1,
+	register_clcmd("say_team /maxwit", "withdraw_maximum", -1,
 				   "Withdraw cash until limit reached.")
 	
-	register_clcmd("say",						"say_handler",      -1)
-	register_clcmd("say_team",					"say_handler",      -1)
+	register_clcmd("maxdep", "deposit_maximum", -1,
+				   "Deposits all of your cash.")
+	register_clcmd("maxwit", "withdraw_maximum", -1,
+				   "Withdraw cash until limit reached.")
 	
-	register_clcmd("say /bankhelp",       		"bank_help",       	-1,
+	register_clcmd("say", "say_handler", -1)
+	register_clcmd("say_team", "say_handler", -1)
+	
+	register_clcmd("say /bankhelp", "bank_help", -1,
 				   "Displays the bank help motd.")
-	register_clcmd("say_team /bankhelp",		"bank_help",       	-1,
+	register_clcmd("say_team /bankhelp", "bank_help", -1,
 				   "Displays the bank help motd.")
 	
 	// Log events
@@ -129,10 +132,8 @@ public plugin_init()
 	register_event("HLTV", "event_round_start", "a", "1=0", "2=0")
 }
 
-public plugin_cfg()
-{
+public plugin_cfg(){
 	g_sqlTuple = SQL_MakeStdTuple()
-	
 	new szQuery[354]
 	
 	formatex(szQuery, 353,
@@ -153,8 +154,7 @@ public plugin_cfg()
 	return PLUGIN_HANDLED
 }
 
-public bank_help(id)
-{
+public bank_help(id){
 	new bankhelpFilePath[128]
 	get_configsdir(bankhelpFilePath, 127)
 	format(bankhelpFilePath, 127, "%s/superbank/bank_help.html",
@@ -167,8 +167,7 @@ public bank_help(id)
 /**
  * Handle to create table automatically
  */
-public create_table_handler(failState, Handle:query, error[], errcode)
-{
+public create_table_handler(failState, Handle:query, error[], errcode){
 	get_query_state(failState, errcode, error)
 	
 	server_print("[BANK] Create table query success bank_users table exists or \
@@ -180,8 +179,7 @@ public create_table_handler(failState, Handle:query, error[], errcode)
 /**
  * Check whether the player has an account in the database
  */
-public check_account(id)
-{
+public check_account(id){
 	new steamId[33]
 	get_user_authid(id, steamId, 32)
 	
@@ -200,21 +198,17 @@ public check_account(id)
 /**
  * Function to check if the query or connection has failed
  */
-public get_query_state(failState, errcode, error[])
-{
-	if(failState == TQUERY_CONNECT_FAILED)
-	{
+public get_query_state(failState, errcode, error[]){
+	if(failState == TQUERY_CONNECT_FAILED){
 		log_amx("Could not connect to database: %s", error)
 		return set_fail_state("Could not connect to SQL database.")
 	}
-	else if(failState == TQUERY_QUERY_FAILED)
-	{
+	else if(failState == TQUERY_QUERY_FAILED){
 		log_amx("Query failed: %s", error)
 		return set_fail_state("Query failed.")
 	}
 	
-	if(errcode)
-	{
+	if(errcode){
 		log_amx("Error on query: %s", error)
 	}
 	
@@ -225,12 +219,10 @@ public get_query_state(failState, errcode, error[])
  * Handler for checking if the user has an account
  */
 public check_select_handler(failState, Handle:query, error[], errcode, data[],
-							dataSize)
-{	
+							dataSize){	
 	get_query_state(failState, errcode, error)
 	
-	if(SQL_NumResults(query) != 0)
-	{
+	if(SQL_NumResults(query) != 0){
 		g_bHasAccount[data[0]] = true
 		update_name(data[0])
 	}
@@ -241,8 +233,7 @@ public check_select_handler(failState, Handle:query, error[], errcode, data[],
 /**
  * Check if the player typed /deposit or/withdraw
  */
-public say_handler(id)
-{
+public say_handler(id){
 	new said[191]
 	read_args(said, 190)
 	remove_quotes(said)
@@ -250,15 +241,13 @@ public say_handler(id)
 	new szParse[2][33]
 	parse(said, szParse[0], 32, szParse[1], 32)
 	
-	if(containi(szParse[0], "/deposit") != -1)
-	{
+	if(containi(szParse[0], "/deposit") != -1){
 		new iDepositAmount = str_to_num(szParse[1])
 		bank_deposit(id, iDepositAmount)
 		
 		return PLUGIN_HANDLED
 	}
-	else if(containi(szParse[0], "/withdraw") != -1)
-	{
+	else if(containi(szParse[0], "/withdraw") != -1){
 		new iWithdrawAmount = str_to_num(szParse[1])
 		bank_withdraw(id, iWithdrawAmount)
 		
@@ -268,24 +257,20 @@ public say_handler(id)
 	return PLUGIN_CONTINUE
 }
 
-public plugin_end()
-{
+public plugin_end(){
 	SQL_FreeHandle(g_sqlTuple)
 }
 
-public event_round_start()
-{
+public event_round_start(){
 	arrayset(g_iMoneyWithdrawn, 0, 32)
 	g_iRound++
 }
 
-public client_putinserver(id)
-{
+public client_putinserver(id){
 	check_account(id)
 }
 
-public client_disconnect(id)
-{
+public client_disconnect(id){
 	if(g_bHasAccount[id])
 		deposit_maximum(id)
 
@@ -296,10 +281,8 @@ public client_disconnect(id)
 /**
  * Withdraw as much from the player's account as they are allowed
  */
-public withdraw_maximum(id)
-{
-	if(g_bHasAccount[id] == false)
-	{
+public withdraw_maximum(id){
+	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create\
 					 one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
@@ -311,15 +294,13 @@ public withdraw_maximum(id)
 	get_cvar_string("bank_offrounds", szOffRounds, 2)
 	new iOffRounds = str_to_num(szOffRounds)
 	
-	if(g_iRound <= iOffRounds)
-	{
+	if(g_iRound <= iOffRounds){
 		client_print(id, print_chat, "[BANK] You cannot withdraw for the first \
 					 %i rounds.", iOffRounds)
 		return PLUGIN_HANDLED
 	}
 	
-	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR)
-	{
+	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){
 		client_print(id, print_chat, "[BANK] You must join a team before you \
 					 can withdraw money.")
 		return PLUGIN_HANDLED
@@ -332,15 +313,13 @@ public withdraw_maximum(id)
 	new iMoneySpace = (16000 - iMoney)
 	new iMoneyLeft = iWithdrawLimit - g_iMoneyWithdrawn[id]
 	
-	if(iMoneySpace <= 0)
-	{
+	if(iMoneySpace <= 0){
 		client_print(id, print_chat, "[BANK] You can only hold a maximum of \
 					 $16000.")
 		return PLUGIN_HANDLED
 	}
 	
-	if(iMoneyLeft <= 0)
-	{
+	if(iMoneyLeft <= 0){
 		client_print(id, print_chat, "[BANK] You have already reached the \
 					 maximum withdraw limit for this round.")
 		return PLUGIN_HANDLED
@@ -368,10 +347,8 @@ public withdraw_maximum(id)
 /**
  * Withdraw money from the account
  */
-public bank_withdraw(id, iWithdrawAmount)
-{
-	if(g_bHasAccount[id] == false)
-	{
+public bank_withdraw(id, iWithdrawAmount){
+	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
 					 one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
@@ -383,15 +360,13 @@ public bank_withdraw(id, iWithdrawAmount)
 	get_cvar_string("bank_offrounds", szOffRounds, 2)
 	new iOffRounds = str_to_num(szOffRounds)
 	
-	if(g_iRound <= iOffRounds)
-	{
+	if(g_iRound <= iOffRounds){
 		client_print(id, print_chat, "[BANK] You cannot withdraw for the first \
 					 %i rounds.", iOffRounds)
 		return PLUGIN_HANDLED
 	}
 	
-	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR)
-	{
+	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){
 		client_print(id, print_chat, "[BANK] You must join a team before you \
 					 can withdraw money.")
 		return PLUGIN_HANDLED
@@ -404,15 +379,13 @@ public bank_withdraw(id, iWithdrawAmount)
 	new iMoneySpace = (16000 - iMoney)
 	new iMoneyLeft = iWithdrawLimit - g_iMoneyWithdrawn[id]
 	
-	if(iMoneySpace == 0)
-	{
+	if(iMoneySpace == 0){
 		client_print(id, print_chat, "[BANK] You can only hold a maximum of \
 					 $16000.")
 		return PLUGIN_HANDLED
 	}
 	
-	if(iMoneyLeft == 0)
-	{
+	if(iMoneyLeft == 0){
 		client_print(id, print_chat, "[BANK] You have already reached the \
 					 maximum withdraw limit for this round.")
 		return PLUGIN_HANDLED
@@ -442,8 +415,7 @@ public bank_withdraw(id, iWithdrawAmount)
  * Handler for queries which do require a result
  */
 public balance_handler(failState, Handle:query, error[], errcode, data[],
-					   dataSize)
-{
+					   dataSize){
 	get_query_state(failState, errcode, error)
 	
 	new szBalance[21]
@@ -453,17 +425,19 @@ public balance_handler(failState, Handle:query, error[], errcode, data[],
 	
 	new id = data[0]
 	
-	if(dataSize == 4) // Someone typed /withdraw x
-	{
+	// Someone typed /withdraw x
+	if(dataSize == 4){
 		new iMoney = data[1]
 		new iLimit = data[2]
 		new iWithdrawAmount = data[3]
 		
-		if(iLimit > iBalance)
+		if(iLimit > iBalance){
 			iLimit = iBalance
+		}
 		
-		if(iWithdrawAmount > iLimit)
+		if(iWithdrawAmount > iLimit){
 			iWithdrawAmount = iLimit
+		}
 		
 		set_balance(id, -iWithdrawAmount)
 		cs_set_user_money(id, (iMoney + iWithdrawAmount), 1)
@@ -471,21 +445,22 @@ public balance_handler(failState, Handle:query, error[], errcode, data[],
 		client_print(id, print_chat, "[BANK] You have withdrawn $%i.",
 					 iWithdrawAmount)
 	}
-	else if(dataSize == 3) // Someone typed /maxwit
-	{
+	// Someone typed /maxwit
+	else if(dataSize == 3){
 		new iMoney = data[1]
 		new iLimit = data[2]
 		
-		if(iLimit > iBalance)
+		if(iLimit > iBalance){
 			iLimit = iBalance
+		}
 		
 		set_balance(id, -iLimit)
 		cs_set_user_money(id, (iMoney + iLimit), 1)
 		g_iMoneyWithdrawn[id] += iLimit
 		client_print(id, print_chat, "[BANK] You have withdrawn $%i.", iLimit)
 	}
-	else if(dataSize == 1) // Someone typed /balance
-	{
+	// Someone typed /balance
+	else if(dataSize == 1){
 		client_print(data[0], print_chat, "[BANK] Your balance is $%s.",
 					 szBalance)
 	}
@@ -496,10 +471,8 @@ public balance_handler(failState, Handle:query, error[], errcode, data[],
 /**
  * Deposit all of the player's cash into their account
  */
-public deposit_maximum(id)
-{
-	if(g_bHasAccount[id] == false)
-	{
+public deposit_maximum(id){
+	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
 					 one by typing /openaccount in chat")
 		return PLUGIN_HANDLED
@@ -507,8 +480,7 @@ public deposit_maximum(id)
 	
 	update_name(id)
 	
-	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR)
-	{
+	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){
 		client_print(id, print_chat, "[BANK] You must join a team before you \
 					 can deposit money.")
 		return PLUGIN_HANDLED
@@ -526,10 +498,8 @@ public deposit_maximum(id)
 /**
  * Deposit money into the player's account
  */
-public bank_deposit(id, iDepositAmount)
-{
-	if(g_bHasAccount[id] == false)
-	{
+public bank_deposit(id, iDepositAmount){
+	if(g_bHasAccount[id] == false){
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
 					 one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
@@ -537,8 +507,7 @@ public bank_deposit(id, iDepositAmount)
 	
 	update_name(id)
 	
-	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR)
-	{	
+	if(cs_get_user_team(id) == CS_TEAM_SPECTATOR){	
 		client_print(id, print_chat, "[BANK] You must join a team before you \
 					 can deposit money.")
 		return PLUGIN_HANDLED
@@ -546,8 +515,9 @@ public bank_deposit(id, iDepositAmount)
 	
 	new iMoney = cs_get_user_money(id)
 	
-	if(iDepositAmount > iMoney)
+	if(iDepositAmount > iMoney){
 		iDepositAmount = iMoney
+	}
 	
 	cs_set_user_money(id, iMoney - iDepositAmount, 1)
 	set_balance(id, iDepositAmount)
@@ -561,23 +531,19 @@ public bank_deposit(id, iDepositAmount)
  * Show the player how much they have withdrawn so far this round
  */
 
-public money_withdrawn(id)
-{
-	if(g_bHasAccount[id])
-	{
+public money_withdrawn(id){
+	if(g_bHasAccount[id]){
 		update_name(id)
 		
 		new szWithdrawLimit[6]
 		get_cvar_string("bank_withdrawlimit", szWithdrawLimit, 5)
 		new iWithdrawLimit = str_to_num(szWithdrawLimit)
 		
-		if(iWithdrawLimit <= 0)
-		{
+		if(iWithdrawLimit <= 0){
 			client_print(id, print_chat, "[BANK] You have withdrawn $%i so far \
 						 this round.", g_iMoneyWithdrawn[id])
 		}
-		else
-		{
+		else{
 			client_print(id, print_chat, "[BANK] You have withdrawn $%i of a \
 						 possible $%i so far this round.",g_iMoneyWithdrawn[id],
 						 iWithdrawLimit)
@@ -585,8 +551,7 @@ public money_withdrawn(id)
 		
 		return PLUGIN_HANDLED
 	}
-	else
-	{
+	else{
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
 					 one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
@@ -598,10 +563,8 @@ public money_withdrawn(id)
 /**
  * Create bank account
  */
-public bank_create(id)
-{	
-	if(g_bHasAccount[id])
-	{
+public bank_create(id){	
+	if(g_bHasAccount[id]){
 		update_name(id)
 		client_print(id, print_chat, "[BANK] You already have an account.")
 		return PLUGIN_HANDLED
@@ -628,10 +591,8 @@ public bank_create(id)
 /**
  * Display the player's balance in chat
  */
-public bank_balance(id)
-{
-	if(g_bHasAccount[id])
-	{
+public bank_balance(id){
+	if(g_bHasAccount[id]){
 		update_name(id)
 		
 		new data[1]
@@ -648,8 +609,7 @@ public bank_balance(id)
 		
 		return PLUGIN_HANDLED
 	}
-	else
-	{
+	else{
 		client_print(id, print_chat, "[BANK] You don't have an account, create \
 					 one by typing /openaccount in chat.")
 		return PLUGIN_HANDLED
@@ -661,8 +621,7 @@ public bank_balance(id)
 /**
  * Set the player's balance in the database
  */
-public set_balance(id, iBalanceChange)
-{
+public set_balance(id, iBalanceChange){
 	new steamId[33]
 	get_user_authid(id, steamId, 32)
 	
@@ -678,8 +637,7 @@ public set_balance(id, iBalanceChange)
 /**
  * Update the player's name in the database
  */
-public update_name(id)
-{
+public update_name(id){
 	new szName[33], szSteamId[33]
 	get_user_name(id, szName, 32)
 	get_user_authid(id, szSteamId, 32)
@@ -697,8 +655,7 @@ public update_name(id)
  * Used for queries which don't return anything
  */
 public query_handler(failState, Handle:query, error[], errcode, data[],
-					 dataSize)
-{
+					 dataSize){
 	get_query_state(failState, errcode, error)
 	
 	return PLUGIN_CONTINUE
